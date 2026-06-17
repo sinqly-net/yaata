@@ -1,0 +1,12 @@
+@import "tailwindcss";
+@import "@fontsource/poppins";
+
+body {
+  font-family: 'Poppins', sans-serif;
+}
+
+.bg-mask {
+  mask-image: url('/bg.svg');
+  mask-repeat: no-repeat;
+  mask-size: cover;
+}

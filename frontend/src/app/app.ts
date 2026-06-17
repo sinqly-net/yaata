@@ -1,5 +1,6 @@
-import {Component, ChangeDetectionStrategy} from '@angular/core';
+import {ChangeDetectionStrategy, Component, OnInit} from '@angular/core';
 import {RouterOutlet} from '@angular/router';
+import {initFlowbite} from 'flowbite';
 
 @Component({
   selector: 'app-root',
@@ -8,5 +9,8 @@ import {RouterOutlet} from '@angular/router';
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './app.scss'
 })
-export class App {
+export class App implements OnInit {
+  ngOnInit() {
+    initFlowbite();
+  }
 }

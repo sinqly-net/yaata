@@ -1,0 +1,7 @@
+@let workspace = workspaceStore.selectedWorkspace();
+
+<div class="flex">
+  <div class="p-3 bg-slate-700 rounded-md h-fit">
+    <a>{{ workspace.name === '' ? 'Workspace auswählen' : workspace.name }}</a>
+  </div>
+</div>

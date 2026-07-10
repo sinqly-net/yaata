@@ -1,0 +1,10 @@
+<div [style.margin-left]="20 * margin_index() + 'px'" class="mt-[2px]">
+  <span>
+    {{ folder().name }}
+  </span>
+  <div>
+    @for (child_folder of folder().folders; track child_folder) {
+      <app-folder-tree [folder]="child_folder" [margin_index]="margin_index() + 1"></app-folder-tree>
+    }
+  </div>
+</div>

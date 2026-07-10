@@ -1,5 +1,8 @@
-<div class="absolute w-screen h-screen bg-mask bg-slate-700/15"></div>
+<div class="absolute w-screen h-screen bg-mask bg-slate-700/15 z-[-1]"></div>
 
-<div class="w-screen h-screen p-5">
-  <router-outlet></router-outlet>
+<div class="w-screen h-screen p-6 flex">
+  <app-workspace-selection></app-workspace-selection>
+  <div class="px-6 py-3 w-full">
+    <router-outlet></router-outlet>
+  </div>
 </div>

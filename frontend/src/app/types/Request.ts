@@ -6,4 +6,5 @@ export interface Request {
   url: string;
   body: object;
   query_params: object;
+  headers: object;
 }

@@ -2,7 +2,7 @@ import {UUID} from './UUID';
 import {Collection} from './Collection';
 
 export interface Workspace {
-  uuid: UUID;
+  id: UUID;
   name: string;
   collections: Collection[];
 }

@@ -1,0 +1,9 @@
+<button (click)="selectCollection()"
+        class="p-3 py-6 bg-slate-600 rounded w-full h-full">
+  <div>
+    <span>{{ collection().name }}</span>
+  </div>
+  <div class="text-sm">
+    <span>Folders: {{ collection().folders.length }}</span>
+  </div>
+</button>

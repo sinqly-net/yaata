@@ -1,0 +1,5 @@
+<div class="grid grid-cols-8 gap-4">
+  @for (collection of globalSelectionStore.selectedWorkspace().collections; track collection.id) {
+    <app-collection-item [collection]="collection"></app-collection-item>
+  }
+</div>

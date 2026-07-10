@@ -1,0 +1,10 @@
+<div class="bg-slate-700 p-4 rounded flex">
+  <div class="w-[10%]">
+    @for (folder of globalSelectionStore.selectedCollection().folders; track folder) {
+      <app-folder-tree [folder]="folder" [margin_index]="0"></app-folder-tree>
+    }
+  </div>
+  <div>
+    <app-request></app-request>
+  </div>
+</div>

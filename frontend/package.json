@@ -31,6 +31,7 @@
     "@angular/router": "^22.0.1",
     "@fontsource/poppins": "^5.2.7",
     "@ngrx/signals": "^21.1.1",
+    "angular-oauth2-oidc": "^22.0.2",
     "flowbite": "^4.0.2",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0"

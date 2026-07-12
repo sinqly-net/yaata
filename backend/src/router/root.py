@@ -1,7 +1,6 @@
 from fastapi import APIRouter
 
 import config
-from utils.auth import CurrentUser
 
 router = APIRouter(tags=["ROOT"])
 
@@ -20,8 +19,3 @@ def get_root():
 @router.get("/auth_config")
 def get_auth_config():
     return config.AUTH_CONFIG
-
-
-@router.get("/auth_test")
-async def get_auth_test(user: CurrentUser):
-    print(user)

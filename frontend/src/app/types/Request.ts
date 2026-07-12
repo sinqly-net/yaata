@@ -1,6 +1,7 @@
 import {UUID} from './UUID';
 
-export type RequestType = 'GET' | 'PUT' | 'POST' | 'DELETE' | 'PATCH' | 'HEAD' | 'OPTIONS' | 'TRACE' | 'CONNECT';
+export const RequestMethodes = ['GET', 'PUT', 'POST', 'DELETE', 'PATCH', 'HEAD', 'OPTIONS', 'TRACE', 'CONNECT'] as const
+export type RequestMethode = typeof RequestMethodes[number]
 
 export interface Request {
   id: UUID;
@@ -9,5 +10,5 @@ export interface Request {
   body: object;
   query_params: object;
   headers: object;
-  type: RequestType;
+  methode: RequestMethode;
 }

@@ -26,7 +26,7 @@ const initialRequest: Request = {
   body: {},
   query_params: {},
   headers: {},
-  type: 'GET'
+  methode: 'GET'
 }
 
 const initialState: WorkspaceState = {
@@ -59,7 +59,7 @@ const initialState: WorkspaceState = {
                       body: {},
                       query_params: {},
                       headers: {},
-                      type: 'GET'
+                      methode: 'HEAD'
                     }
                   ]
                 }

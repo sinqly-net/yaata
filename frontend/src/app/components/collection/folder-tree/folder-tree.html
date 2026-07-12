@@ -2,6 +2,11 @@
   <span>
     {{ folder().name }}
   </span>
+  <div class="ml-[20px]">
+    @for (request of folder().requests; track request.id) {
+      <app-request-item [request]="request"></app-request-item>
+    }
+  </div>
   <div>
     @for (child_folder of folder().folders; track child_folder) {
       <app-folder-tree [folder]="child_folder" [margin_index]="margin_index() + 1"></app-folder-tree>

@@ -5,6 +5,7 @@ import {WorkspaceNotFound} from 'exceptions/WorkspaceNotFound';
 import {Workspace} from 'types/Workspace';
 import {Collection} from 'types/Collection';
 import {CollectionNotFound} from 'exceptions/CollectionNotFound';
+import {Request} from 'types/Request';
 
 const initialWorkspace: Workspace = {
   id: '',
@@ -18,10 +19,21 @@ const initialCollection: Collection = {
   folders: []
 }
 
+const initialRequest: Request = {
+  id: '',
+  name: '',
+  url: '',
+  body: {},
+  query_params: {},
+  headers: {},
+  type: 'GET'
+}
+
 const initialState: WorkspaceState = {
   isLoading: true,
   selectedWorkspace: initialWorkspace,
   selectedCollection: initialCollection,
+  selectedRequest: initialRequest,
   permittedWorkspaces: [
     {
       id: '1',
@@ -39,7 +51,17 @@ const initialState: WorkspaceState = {
                   id: '11',
                   name: 'folder 11',
                   folders: [],
-                  requests: []
+                  requests: [
+                    {
+                      id: '13',
+                      name: 'Get Docs',
+                      url: 'http://localhost:8000/docs',
+                      body: {},
+                      query_params: {},
+                      headers: {},
+                      type: 'GET'
+                    }
+                  ]
                 }
               ],
               requests: []
@@ -111,6 +133,13 @@ export const GlobalSelectionStore = signalStore(
       const collection = store.selectedWorkspace().collections.find(collection => collection.id === uuid)
       if (!collection) throw new CollectionNotFound();
       patchState(store, {selectedCollection: collection});
+    },
+    isCollectionSelected(): boolean {
+      return store.selectedCollection().id !== '';
+    },
+    selectRequest(request: Request): void {
+      // Because requests can be in a folder of a folder etc. the request is directly used instead of the id
+      patchState(store, {selectedRequest: request});
     }
   }))
 )

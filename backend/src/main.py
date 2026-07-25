@@ -11,26 +11,21 @@ from pony.orm import set_sql_debug
 from starlette.middleware.cors import CORSMiddleware
 from uvicorn.config import LOGGING_CONFIG
 
-import config
+from config import config
 from models import db
 
 
 def check_environment():
-    for variable in config.REQUIRED_ENVIRONMENT_VARIABLES:
-        if variable not in os.environ:
-            logging.error(f"Required environment variable {variable} is not set!")
-            os.kill(os.getpid(), signal.SIGTERM)
-
     try:
-        if config.LOGGING_LEVEL == "DEBUG":
+        if config.debug.level == "DEBUG":
             set_sql_debug(True)
         db.bind(
-            provider=config.DB_PROVIDER,
-            user=config.DB_USER,
-            password=config.DB_PASSWORD,
-            host=config.DB_HOST,
-            database=config.DB_DATABASE,
-            options=config.DB_OPTIONS,
+            provider=config.db.provider,
+            user=config.db.user,
+            password=config.db.password,
+            host=config.db.host,
+            database=config.db.database,
+            options=config.db.options,
         )
         db.generate_mapping(create_tables=True)
     except Exception as e:
@@ -47,14 +42,16 @@ async def lifespan(app: FastAPI):
         load_router()
         check_environment()
         for formatter in LOGGING_CONFIG["formatters"]:
-            LOGGING_CONFIG["formatters"][formatter]["fmt"] = config.LOGGING_FORMAT
+            LOGGING_CONFIG["formatters"][formatter]["fmt"] = config.debug.format
 
         yield
     finally:
         logging.info("Application shutdown")
 
 
-app = FastAPI(title=f"Yaata Backend V{config.VERSION}", lifespan=lifespan)
+app = FastAPI(
+    title=f"Yaata Backend V{config.version}", lifespan=lifespan, root_path="/api"
+)
 
 app.add_middleware(
     CORSMiddleware,

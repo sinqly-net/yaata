@@ -1,13 +1,11 @@
-from pydantic import BaseModel, Field
+from pony.orm import Optional, Set
+from pony.orm import PrimaryKey
+
+from models import db
 
 
-class User(BaseModel):
-    id: str = Field(..., description="User-ID from Bearer Token")
-    email: str | None = None
-    roles: list[str] = Field(default_factory=list)
-    raw_claims: dict = Field(default_factory=dict, exclude=True)
-    email_verified: bool | None = None
-    name: str | None = None
-    preferred_username: str | None = None
-    given_name: str | None = None
-    family_name: str | None = None
+class User(db.Entity):
+    id = PrimaryKey(str)
+    email = Optional(str)
+    name = Optional(str)
+    sessions = Set('Session')  # models/session.py

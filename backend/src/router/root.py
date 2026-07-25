@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 
-import config
+from config import config
 
 router = APIRouter(tags=["ROOT"])
 
@@ -12,10 +12,5 @@ def get_root():
     """
     return {
         "app": "Yaata Backend",
-        "version": config.VERSION,
+        "version": config.version,
     }
-
-
-@router.get("/auth_config")
-def get_auth_config():
-    return config.AUTH_CONFIG

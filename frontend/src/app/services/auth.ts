@@ -1,36 +1,31 @@
 import {inject, Service} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
-import {AuthConfig} from 'types/Auth';
 import {environment} from 'root/environments/environment';
-import {OAuthService} from 'angular-oauth2-oidc';
+import {User} from 'types/User';
+import {catchError, firstValueFrom, of} from 'rxjs';
 
 @Service()
 export class Auth {
-  private oauthService = inject(OAuthService);
+  currentUser: User | null = null;
   private readonly http = inject(HttpClient);
-  private readonly backend_url = environment.backend_url;
+  private readonly backendUrl = environment.backend_url;
 
-  loadAuthConfig(): Promise<void> {
-    return new Promise((resolve, reject) => {
-      this.http.get<AuthConfig>(`${this.backend_url}/auth_config`).subscribe(
-        (config: Partial<AuthConfig>) => {
-          config.redirectUri = window.location.origin;
+  async init(): Promise<void> {
+    const user = await firstValueFrom(
+      this.http
+        .get<User>(`${this.backendUrl}/auth/me`, {withCredentials: true})
+        .pipe(catchError(() => of(null)))
+    );
 
-          this.oauthService.configure(config);
-          this.oauthService.setStorage(sessionStorage);
+    if (!user) {
+      // Echte Navigation, kein XHR - der Browser muss zum IdP redirecten können
+      window.location.href = `${this.backendUrl}/auth/login`;
+      return;
+    }
+    this.currentUser = user;
+  }
 
-          this.oauthService
-            .loadDiscoveryDocumentAndTryLogin()
-            .then(() => {
-              if (!this.oauthService.hasValidAccessToken()) {
-                this.oauthService.initLoginFlow();
-              }
-              resolve();
-            })
-            .catch(reject);
-        },
-        error => reject(error)
-      );
-    });
+  logout(): void {
+    window.location.href = `${this.backendUrl}/auth/logout`;
   }
 }

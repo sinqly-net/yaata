@@ -1,44 +1,20 @@
 import os
 
+import yaml
 
-def convertStringToBool(bool_string: str) -> bool:
-    isTrue = ["true", "True", "TRUE"].__contains__(bool_string)
-    return isTrue
+from exceptions.config_error import ConfigError
+from schemas.app_config import AppConfig
 
 
-# DO NOT CHANGE UNLESS YOU KNOW WHAT YOU'RE DOING!!!
-VERSION = float(os.getenv("VERSION", 1.0))
+def load_config(path: str) -> AppConfig:
+    with open(path, "r") as f:
+        raw = yaml.safe_load(f)
+        if raw is None:
+            raise ConfigError(
+                """\nWhile reading the config file a error happened. The file returns as null.\nThis indicates that your file is empty.\nCheck your local.config.yaml and the path to the file in the CONFIG_PATH environment variable."""
+            )
+    return AppConfig(**raw)
 
-# Free to edit.
-LOGGING_LEVEL = os.getenv("LOG_LEVEL", "DEBUG")
-LOGGING_FORMAT = os.getenv("LOG_FORMAT", "%(levelname)s | %(asctime)s: %(message)s")
 
-REQUIRED_ENVIRONMENT_VARIABLES = [
-    "DB_PROVIDER",
-    "DB_USER",
-    "DB_PASSWORD",
-    "DB_HOST",
-    "DB_PORT",
-    "DB_DATABASE",
-    "DB_SCHEMA",
-]
-
-DB_PROVIDER = os.getenv("DB_PROVIDER")
-DB_USER = os.getenv("DB_USER", "yaata")
-DB_PASSWORD = os.getenv("DB_PASSWORD", "yaata")
-DB_HOST = os.getenv("DB_HOST", "localhost")
-DB_PORT = os.getenv("DB_PORT", "5432")
-DB_DATABASE = os.getenv("DB_DATABASE", "yaata")
-DB_SCHEMA = os.getenv("DB_SCHEMA", "public")
-DB_OPTIONS = os.getenv("DB_OPTIONS", f"-c search-path={DB_SCHEMA}")
-
-AUTH_CONFIG = {
-    "issuer": os.getenv("AUTH_ISSUER"),
-    "clientId": os.getenv("AUTH_CLIENT_ID"),
-    "clientSecret": os.getenv("AUTH_CLIENT_SECRET"),
-    "scope": os.getenv("AUTH_SCOPE"),
-    "responseType": os.getenv("AUTH_RESPONSE_TYPE"),
-    "showDebugInformation": convertStringToBool(os.getenv("AUTH_DEBUG", "")),
-    "sessionChecksEnabled": convertStringToBool(os.getenv("AUTH_SESSION_CHECKS", "")),
-    "useSilentRefresh": convertStringToBool(os.getenv("AUTH_USE_SILENT_REFRESH", "")),
-}
+config_file_path = os.getenv("CONFIG_PATH", "/app/config.yaml")
+config = load_config(config_file_path)

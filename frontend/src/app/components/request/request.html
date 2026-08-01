@@ -2,6 +2,20 @@
   <!-- The Type, url and send -->
   <div class="col-span-1">
     <app-request-url></app-request-url>
+
+    <div class="mt-3">
+      <app-tabs (selectedChange)="setSelectedWorkingTab($event)" [selected]="selectedWorkingTab">
+        <app-tab-item key="body">Body</app-tab-item>
+        <app-tab-item key="query_params">Parameters</app-tab-item>
+        <app-tab-item key="headers">Headers</app-tab-item>
+      </app-tabs>
+    </div>
+
+    <div class="mt-3">
+      @if (currentComponent) {
+        <ng-container *ngComponentOutlet="currentComponent"></ng-container>
+      }
+    </div>
   </div>
 
   <div class="col-span-1">

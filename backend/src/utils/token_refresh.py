@@ -2,9 +2,10 @@ import asyncio
 from datetime import datetime, timedelta
 
 import requests
-from pony.orm import db_session
+from sqlalchemy import delete
 
 from config import config
+from models.db import async_session_factory
 from models.session import Session as DBSession
 from utils.token_endpoint import call_token_endpoint
 
@@ -31,12 +32,12 @@ def _refresh_request_sync(token_endpoint: str, refresh_token: str) -> requests.R
 async def ensure_fresh_token(session_id: str) -> str:
     lock = _lock_for(session_id)
     async with lock:
-        with db_session:
-            db_sess = DBSession.get(id=session_id)
+        async with async_session_factory() as db:
+            db_sess = await db.get(DBSession, session_id)
             if not db_sess:
                 raise ValueError("Session not found")
-            if db_sess.access_token_expires_at > datetime.utcnow() + timedelta(
-                seconds=30
+            if db_sess.access_token_expires_at > datetime.now() + timedelta(
+                    seconds=30
             ):
                 return db_sess.access_token
             if not db_sess.refresh_token:
@@ -51,25 +52,23 @@ async def ensure_fresh_token(session_id: str) -> str:
                 "client_secret": config.oidc.client_secret.get_secret_value(),
             }
         )
-
         if resp.status_code != 200:
-            with db_session:
-                db_sess = DBSession.get(id=session_id)
-                if db_sess:
-                    db_sess.delete()
+            async with async_session_factory() as db:
+                await db.execute(delete(DBSession).where(DBSession.id == session_id))
+                await db.commit()
             raise ValueError("Refresh failed, re-login required")
 
         token = resp.json()
-        with db_session:
-            db_sess = DBSession.get(id=session_id)
-            if db_sess:
-                db_sess.access_token = token["access_token"]
-                db_sess.refresh_token = token.get("refresh_token", refresh_token)
-                if token.get("id_token"):
-                    db_sess.id_token = token["id_token"]
-                db_sess.access_token_expires_at = datetime.utcnow() + timedelta(
-                    seconds=token.get("expires_in", 300)
-                )
-                return db_sess.access_token
-
-        raise ValueError("Session disappeared during refresh")
+        async with async_session_factory() as db:
+            db_sess = await db.get(DBSession, session_id)
+            if not db_sess:
+                raise ValueError("Session disappeared during refresh")
+            db_sess.access_token = token["access_token"]
+            db_sess.refresh_token = token.get("refresh_token", refresh_token)
+            if token.get("id_token"):
+                db_sess.id_token = token["id_token"]
+            db_sess.access_token_expires_at = datetime.now() + timedelta(
+                seconds=token.get("expires_in", 300)
+            )
+            await db.commit()
+            return db_sess.access_token

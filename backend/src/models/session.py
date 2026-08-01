@@ -1,19 +1,17 @@
-from datetime import datetime, timezone
+from sqlalchemy import Column, String, DateTime, UUID, ForeignKey
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from pony.orm import Optional, Required
-from pony.orm import PrimaryKey
-
-from models import db
-from models.user import User
+from .db import BaseTableEntity
 
 
-class Session(db.Entity):
-    id = PrimaryKey(str)
-    user = Required(User)
-    access_token = Required(str)
-    refresh_token = Optional(str)
-    id_token = Optional(str)
-    csrf_token = Required(str)
-    access_token_expires_at = Required(datetime)
-    expires_at = Required(datetime)
-    created_at = Required(datetime, default=datetime.now(timezone.utc))
+class Session(BaseTableEntity):
+    __tablename__ = 'session'
+    id = Column(String, primary_key=True)
+    user_id: Mapped[UUID] = mapped_column(ForeignKey("user.id"))
+    user: Mapped["User"] = relationship(back_populates="sessions")
+    access_token = Column(String, nullable=False)
+    refresh_token = Column(String, nullable=False)
+    id_token = Column(String, nullable=False)
+    csrf_token = Column(String, nullable=False)
+    access_token_expires_at = Column(DateTime, nullable=False)
+    expires_at = Column(DateTime, nullable=False)

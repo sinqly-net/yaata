@@ -7,9 +7,10 @@ from authlib.common.security import generate_token
 from authlib.integrations.requests_client import OAuth2Session
 from fastapi import APIRouter, HTTPException, Depends
 from fastapi.responses import RedirectResponse
-from pony.orm import db_session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from config import config
+from models.db import get_db
 from models.session import Session as DBSession
 from models.user import User
 from utils.current_user import get_current_user
@@ -40,19 +41,19 @@ async def login():
 
     def _create_url():
         session = _build_session()
-        verifier = generate_token(48)  # PKCE code_verifier selbst erzeugen
+        verifier = generate_token(48)
         uri, state = session.create_authorization_url(
             discovery["authorization_endpoint"], code_verifier=verifier
         )
         return uri, state, verifier
 
     uri, state, verifier = await asyncio.to_thread(_create_url)
-    _pending_flows[state] = {"code_verifier": verifier, "created_at": datetime.utcnow()}
+    _pending_flows[state] = {"code_verifier": verifier, "created_at": datetime.now()}
     return RedirectResponse(uri)
 
 
 @router.get("/callback")
-async def callback(code: str, state: str):
+async def callback(code: str, state: str, db: AsyncSession = Depends(get_db)):
     flow = _pending_flows.pop(state, None)
     if not flow:
         raise HTTPException(400, "Invalid or expired state")
@@ -84,12 +85,18 @@ async def callback(code: str, state: str):
 
     userinfo = await asyncio.to_thread(_get_userinfo)
 
-    with db_session:
-        user = User.get(id=userinfo["sub"]) or User(
-            id=userinfo["sub"], email=userinfo.get("email"), name=userinfo.get("name")
+    user = await db.get(User, userinfo["sub"])
+    if user is None:
+        user = User(
+            id=userinfo["sub"],
+            email=userinfo.get("email"),
+            name=userinfo.get("name"),
         )
-        session_id = secrets.token_urlsafe(32)
-        csrf_token = secrets.token_urlsafe(32)
+        db.add(user)
+
+    session_id = secrets.token_urlsafe(32)
+    csrf_token = secrets.token_urlsafe(32)
+    db.add(
         DBSession(
             id=session_id,
             user=user,
@@ -97,11 +104,13 @@ async def callback(code: str, state: str):
             refresh_token=token.get("refresh_token"),
             id_token=token.get("id_token"),
             csrf_token=csrf_token,
-            access_token_expires_at=datetime.utcnow()
+            access_token_expires_at=datetime.now()
                                     + timedelta(seconds=token.get("expires_in", 300)),
-            expires_at=datetime.utcnow()
+            expires_at=datetime.now()
                        + timedelta(seconds=config.session.lifetime_seconds),
         )
+    )
+    await db.commit()
 
     redirect = RedirectResponse(str(config.host))
     redirect.set_cookie(

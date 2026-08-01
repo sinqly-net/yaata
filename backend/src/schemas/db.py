@@ -4,7 +4,6 @@ from pydantic import BaseModel
 
 
 class DBConfig(BaseModel):
-    provider: str
     user: str
     password: str
     host: str

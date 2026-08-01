@@ -7,27 +7,16 @@ from pathlib import Path
 
 import uvicorn
 from fastapi import FastAPI
-from pony.orm import set_sql_debug
 from starlette.middleware.cors import CORSMiddleware
 from uvicorn.config import LOGGING_CONFIG
 
 from config import config
-from models import db
 
 
 def check_environment():
     try:
         if config.debug.level == "DEBUG":
-            set_sql_debug(True)
-        db.bind(
-            provider=config.db.provider,
-            user=config.db.user,
-            password=config.db.password,
-            host=config.db.host,
-            database=config.db.database,
-            options=config.db.options,
-        )
-        db.generate_mapping(create_tables=True)
+            pass
     except Exception as e:
         logging.error(e)
         logging.error(f"Couldn't connect to Database!")

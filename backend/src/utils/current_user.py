@@ -6,11 +6,10 @@ from pony.orm import db_session
 from config import config
 from models.session import Session as DBSession
 from models.user import User
-from schemas.current_user import CurrentUser
 from .token_refresh import ensure_fresh_token
 
 
-async def get_current_user(request: Request) -> CurrentUser:
+async def get_current_user(request: Request) -> User:
     session_id = request.cookies.get(config.session.cookie_name)
     if not session_id:
         raise HTTPException(401, "Not authenticated")
@@ -30,4 +29,4 @@ async def get_current_user(request: Request) -> CurrentUser:
         user = User.get(id=user_id)
         if not user:
             raise HTTPException(401, "User not found")
-        return CurrentUser(id=user.id, email=user.email, name=user.name)
+        return user

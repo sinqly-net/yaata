@@ -12,12 +12,11 @@ from pony.orm import db_session
 from config import config
 from models.session import Session as DBSession
 from models.user import User
-from schemas.current_user import CurrentUser
 from utils.current_user import get_current_user
 from utils.discovery import discovery_cache
 from utils.token_endpoint import call_token_endpoint
 
-router = APIRouter(prefix="/auth")
+router = APIRouter(prefix="/auth", tags=["AUTH"])
 _pending_flows: dict[str, dict] = {}
 
 
@@ -99,9 +98,9 @@ async def callback(code: str, state: str):
             id_token=token.get("id_token"),
             csrf_token=csrf_token,
             access_token_expires_at=datetime.utcnow()
-            + timedelta(seconds=token.get("expires_in", 300)),
+                                    + timedelta(seconds=token.get("expires_in", 300)),
             expires_at=datetime.utcnow()
-            + timedelta(seconds=config.session.lifetime_seconds),
+                       + timedelta(seconds=config.session.lifetime_seconds),
         )
 
     redirect = RedirectResponse(str(config.host))
@@ -125,5 +124,5 @@ async def callback(code: str, state: str):
 
 
 @router.get("/me")
-def me(user: CurrentUser = Depends(get_current_user)):
+def me(user: User = Depends(get_current_user)):
     return {"id": user.id, "email": user.email, "name": user.name}

@@ -1,1 +1,6 @@
 @custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
+
+:host {
+  --bg-slate-800-03: rgba(29, 41, 61, 0.3);
+}
+

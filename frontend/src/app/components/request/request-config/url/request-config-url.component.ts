@@ -5,15 +5,15 @@ import {TitleCasePipe} from '@angular/common';
 import {FormsModule} from '@angular/forms';
 
 @Component({
-  selector: 'app-request-url',
+  selector: 'app-request-config-url',
   imports: [
     TitleCasePipe,
     FormsModule
   ],
-  templateUrl: './request-url.html',
-  styleUrl: './request-url.scss',
+  templateUrl: './request-config-url.component.html',
+  styleUrl: './request-config-url.component.scss',
 })
-export class RequestUrl {
+export class RequestConfigUrl {
   protected readonly RequestMethodes = RequestMethodes;
   protected request = inject(CurrentRequestStore);
 }

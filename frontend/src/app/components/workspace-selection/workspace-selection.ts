@@ -5,7 +5,7 @@ import {WorkspaceSelectionItem} from './workspace-selection-item/workspace-selec
 @Component({
   selector: 'app-workspace-selection',
   imports: [
-    WorkspaceSelectionItem
+    WorkspaceSelectionItem,
   ],
   templateUrl: './workspace-selection.html',
   styleUrl: './workspace-selection.scss',

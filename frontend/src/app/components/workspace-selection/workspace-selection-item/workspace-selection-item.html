@@ -1,5 +1,6 @@
 <button (click)="selectWorkspace()" [tooltip]="workspace().name" class="p-2" tooltipPlacement="right">
-  <svg [class.!text-sky-500]="globalSelectionStore.isWorkspaceSelectedByID(workspace().id)" aria-hidden="true"
+  <svg [class.!text-sky-500]="workspace().id === globalSelectionStore.selectedWorkspace?.()?.workspace?.id"
+       aria-hidden="true"
        class="w-4 h-4 text-gray-800 dark:text-white" fill="currentColor" height="24" viewBox="0 0 24 24" width="24"
        xmlns="http://www.w3.org/2000/svg">
     <path clip-rule="evenodd"

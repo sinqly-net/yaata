@@ -19,6 +19,6 @@ export class WorkspaceSelectionItem {
 
   protected selectWorkspace() {
     this.globalSelectionStore.selectWorkspace(this.workspace().id);
-    this.router.navigate(['workspace']);
+    this.router.navigate(['workspace', this.workspace().id]);
   }
 }

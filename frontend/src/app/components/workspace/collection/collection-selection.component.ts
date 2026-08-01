@@ -5,7 +5,7 @@ import {CollectionItem} from 'components/workspace/collection/collection-item/co
 @Component({
   selector: 'app-collection',
   imports: [
-    CollectionItem
+    CollectionItem,
   ],
   templateUrl: './collection-selection.component.html',
   styleUrl: './collection-selection.component.scss',

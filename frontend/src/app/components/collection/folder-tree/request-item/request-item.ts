@@ -16,6 +16,5 @@ export class RequestItem {
 
   selectRequest() {
     this.currentRequestStore.setRequest(this.request());
-    this.globalSelectionStore.selectRequest(this.request());
   }
 }

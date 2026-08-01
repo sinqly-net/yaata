@@ -7,7 +7,7 @@ from models import User, get_db
 from schemas.workspace import WorkspaceAccessDTO
 from utils.current_user import get_current_user
 
-router = APIRouter(prefix="/me", tags=["ME"])
+router = APIRouter(prefix="/workspace", tags=["WORKSPACE"])
 
 
 @router.get("/access", response_model=List[WorkspaceAccessDTO])

@@ -1,8 +1,7 @@
 import {Folder} from "./Folder";
-import {UUID} from './UUID';
+import {Base} from 'types/Base';
 
-export interface Collection {
-  id: UUID;
+export interface Collection extends Base {
   name: string;
   folders: Folder[];
 }

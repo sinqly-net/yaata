@@ -1,5 +1,5 @@
 import {Component, inject} from '@angular/core';
-import {Router} from '@angular/router';
+import {ActivatedRoute, Router} from '@angular/router';
 import {GlobalSelectionStore} from 'stores/global-selection-store';
 import {CollectionSelection} from 'components/workspace/collection/collection-selection.component';
 
@@ -14,10 +14,16 @@ import {CollectionSelection} from 'components/workspace/collection/collection-se
 export class Workspace {
   protected globalSelectionStore = inject(GlobalSelectionStore);
   private readonly router = inject(Router);
+  private readonly activatedRoute = inject(ActivatedRoute);
 
   constructor() {
-    if (!this.globalSelectionStore.isWorkspaceSelected()) {
-      this.router.navigate(['']);
-    }
+    this.activatedRoute.params.subscribe(params => {
+      const workspaceId = params['workspace_id'];
+      const exists = this.globalSelectionStore.selectWorkspace(workspaceId);
+      if (!workspaceId || !exists) {
+        this.router.navigate(['']);
+        return;
+      }
+    })
   }
 }

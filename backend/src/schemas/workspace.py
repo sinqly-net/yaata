@@ -11,7 +11,7 @@ from schemas.workspace_access import WorkspaceAccessRights
 class WorkspaceDTO(BaseSchema):
     model_config = ConfigDict(extra="ignore")
     name: str
-    created_user: Optional[UserDTO]
+    creation_user: Optional[UserDTO]
     collections: List[CollectionDTO]
 
 

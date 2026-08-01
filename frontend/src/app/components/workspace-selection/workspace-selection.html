@@ -1,7 +1,7 @@
 <div class="h-full content-center">
   <div class="p-1 bg-slate-700 rounded">
-    @for (workspace of globalSelectionStore.permittedWorkspaces(); track workspace.id) {
-      <app-workspace-selection-item [workspace]="workspace"></app-workspace-selection-item>
+    @for (workspaceAccess of globalSelectionStore.permittedWorkspaces(); track workspaceAccess.id) {
+      <app-workspace-selection-item [workspace]="workspaceAccess.workspace"></app-workspace-selection-item>
     }
   </div>
 </div>

@@ -1,14 +1,21 @@
 import {patchState, signalStore, withMethods, withState} from '@ngrx/signals';
-import {inject} from '@angular/core';
-import {GlobalSelectionStore} from 'stores/global-selection-store';
 import {Request} from 'types/Request';
+
+const initialState: Request = {
+  id: '',
+  created_at: new Date(),
+  updated_at: undefined,
+  name: '',
+  url: '',
+  body: {},
+  query_params: {},
+  headers: {},
+  method: 'GET'
+}
 
 export const CurrentRequestStore = signalStore(
   {providedIn: 'root'},
-  withState(() => {
-    const globalSelectionStore = inject(GlobalSelectionStore);
-    return globalSelectionStore.selectedRequest();
-  }),
+  withState(initialState),
   withMethods(store => ({
     setRequest(request: Request) {
       patchState(store, {...request});

@@ -1,8 +1,7 @@
-import {UUID} from './UUID';
 import {Collection} from './Collection';
+import {Base} from 'types/Base';
 
-export interface Workspace {
-  id: UUID;
+export interface Workspace extends Base {
   name: string;
   collections: Collection[];
 }

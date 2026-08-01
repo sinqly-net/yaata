@@ -7,13 +7,27 @@ export const routes: Routes = [
     path: 'workspace',
     children: [
       {
-        path: '',
-        component: Workspace
+        path: ':workspace_id',
+        children: [
+          {
+            path: '',
+            component: Workspace,
+          },
+          {
+            path: 'collection',
+            children: [
+              {
+                path: ':collection_id',
+                component: Collection,
+              }
+            ]
+          }
+        ]
       },
-      {
-        path: 'collection',
-        component: Collection,
-      }
     ]
   },
+  {
+    path: '**',
+    redirectTo: 'workspace',
+  }
 ];

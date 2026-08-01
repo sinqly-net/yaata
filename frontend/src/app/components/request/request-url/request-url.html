@@ -1,11 +1,11 @@
 <form>
   <div class="flex shadow rounded-base -space-x-0.5 text-heading dark:text-gray-200 text-sm">
     <select
-      [value]="request.methode()"
+      [value]="request.method()"
       class="block px-3 py-2.5 pr-8 bg-neutral-secondary-medium dark:bg-slate-600 border border-default-medium dark:border-slate-800 rounded-s-base placeholder:text-body outline-none"
       id="methode">
-      @for (methode of RequestMethodes; track methode) {
-        <option [selected]="request.methode() === methode" [value]="methode">{{ methode | titlecase }}</option>
+      @for (method of RequestMethodes; track method) {
+        <option [selected]="request.method() === method" [value]="method">{{ method | titlecase }}</option>
       }
     </select>
 

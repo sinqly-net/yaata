@@ -8,7 +8,7 @@ class Session(BaseTableEntity):
     __tablename__ = 'session'
     id = Column(String, primary_key=True)
     user_id: Mapped[UUID] = mapped_column(ForeignKey("user.id"))
-    user: Mapped["User"] = relationship(back_populates="sessions")
+    user: Mapped["User"] = relationship(back_populates="sessions", lazy="selectin")
     access_token = Column(String, nullable=False)
     refresh_token = Column(String, nullable=False)
     id_token = Column(String, nullable=False)

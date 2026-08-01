@@ -38,4 +38,8 @@ async def get_current_user(
     user = await db.get(User, user_id)
     if not user:
         raise HTTPException(401, "User not found")
+    for ws in user.workspaces:
+        for collection in ws.workspace.collections:
+            for folder in collection.folders:
+                await folder.load_subtree()
     return user

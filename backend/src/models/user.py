@@ -12,6 +12,6 @@ class User(BaseTableEntity):
     email = Column(String, nullable=False)
     name = Column(String, nullable=False)
 
-    sessions: Mapped[List["Session"]] = relationship(back_populates="user")
-    workspaces: Mapped[List["WorkspaceAccess"]] = relationship(back_populates="user")
-    workspaces_created: Mapped[List["Workspace"]] = relationship(back_populates="created_user")
+    sessions: Mapped[List["Session"]] = relationship(back_populates="user", lazy="selectin")
+    workspaces: Mapped[List["WorkspaceAccess"]] = relationship(back_populates="user", lazy="selectin")
+    workspaces_created: Mapped[List["Workspace"]] = relationship(back_populates="created_user", lazy="selectin")

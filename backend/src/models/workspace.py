@@ -10,8 +10,9 @@ class Workspace(BaseTableEntity):
     __tablename__ = "workspace"
 
     name = Column(String, nullable=False)
-    created_user_id: Mapped[UUID] = mapped_column(ForeignKey("user.id"))
 
-    created_user: Mapped["User"] = relationship(back_populates="workspaces_created")
-    access: Mapped[List["WorkspaceAccess"]] = relationship(back_populates="workspace")
-    collections: Mapped[List["Collection"]] = relationship(back_populates="workspace")
+    created_by: Mapped[UUID] = mapped_column(ForeignKey("user.id"))
+    created_user: Mapped["User"] = relationship(back_populates="workspaces_created", lazy="selectin")
+
+    access: Mapped[List["WorkspaceAccess"]] = relationship(back_populates="workspace", lazy="selectin")
+    collections: Mapped[List["Collection"]] = relationship(back_populates="workspace", lazy="selectin")

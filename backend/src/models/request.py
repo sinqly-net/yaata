@@ -14,4 +14,4 @@ class Request(BaseTableEntity):
     headers = Column(JSON, nullable=True)
     method = Column(String, default=HttpMethod.GET.value, nullable=False)  # enum HttpMethod
     folder_id: Mapped[UUID] = mapped_column(ForeignKey("folder.id"))
-    folder: Mapped["Folder"] = relationship(back_populates="requests")
+    folder: Mapped["Folder"] = relationship(back_populates="requests", lazy="selectin")

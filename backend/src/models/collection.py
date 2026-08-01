@@ -12,7 +12,6 @@ from .workspace import Workspace
 class Collection(BaseTableEntity):
     __tablename__ = "collection"
     name = Column(String, nullable=False)
-    folders: Mapped[List["Folder"]] = relationship(back_populates="collection")
-    workspace: Mapped["Workspace"] = relationship('Workspace', back_populates="collections")
+    folders: Mapped[List["Folder"]] = relationship(back_populates="collection", lazy="selectin")
     workspace_id: Mapped[UUID] = mapped_column(ForeignKey("workspace.id"))
-    workspace: Mapped["Workspace"] = relationship(back_populates="collections")
+    workspace: Mapped["Workspace"] = relationship(back_populates="collections", lazy="selectin")

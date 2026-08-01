@@ -3,13 +3,13 @@ from datetime import datetime
 from typing import AsyncGenerator
 
 from sqlalchemy import Column, UUID, DateTime
-from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
+from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession, AsyncAttrs
 from sqlalchemy.orm import DeclarativeBase
 
 from config import config
 
 
-class BaseTableEntity(DeclarativeBase):
+class BaseTableEntity(AsyncAttrs, DeclarativeBase):
     id = Column(UUID, primary_key=True, default=uuid.uuid4)
     created_at = Column(DateTime, default=datetime.now(), nullable=False)
     updated_at = Column(DateTime, default=datetime.now(), nullable=True)

@@ -15,4 +15,5 @@ async def get_workspaces_with_access(user: User = Depends(get_current_user), db:
     """
     Returns a list of all workspaces the requesting user has access to.
     """
+    print([col.folders for col in user.workspaces[0].workspace.collections])
     return user.workspaces

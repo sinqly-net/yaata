@@ -19,8 +19,8 @@ class Folder(BaseTableEntity):
     )
 
     requests: Mapped[List["Request"]] = relationship(back_populates="folder", lazy="selectin")
-    collection_id: Mapped[UUID] = mapped_column(ForeignKey("collection.id"))
-    collection: Mapped["Collection"] = relationship(back_populates="folders", lazy="selectin")
+    collection_id: Mapped[Optional[UUID]] = mapped_column(ForeignKey("collection.id"))
+    collection: Mapped[Optional["Collection"]] = relationship(back_populates="folders", lazy="selectin")
 
     async def load_subtree(self) -> "Folder":
         """

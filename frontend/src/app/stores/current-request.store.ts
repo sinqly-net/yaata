@@ -8,8 +8,8 @@ const initialState: Request = {
   name: '',
   url: '',
   body: {},
-  query_params: {},
-  headers: {},
+  query_params: [],
+  headers: [],
   method: 'GET'
 }
 
@@ -25,6 +25,9 @@ export const CurrentRequestStore = signalStore(
         console.log(url)
         patchState(store, {url: url})
       }
+    },
+    update(update: Partial<Request>) {
+      patchState(store, {...update});
     }
   }))
 );

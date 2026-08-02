@@ -1,6 +1,6 @@
 import {Component, model} from '@angular/core';
-import {RequestKeyValueList} from 'types/Request';
 import {KeyValueListItem} from 'components/key-value-list/key-value-list-item/key-value-list-item';
+import {IKeyValue} from 'types/KeyValue';
 
 @Component({
   selector: 'app-key-value-list',
@@ -10,8 +10,8 @@ import {KeyValueListItem} from 'components/key-value-list/key-value-list-item/ke
   templateUrl: './key-value-list.html',
   styleUrl: './key-value-list.scss',
 })
-export class KeyValueList {
-  list = model<RequestKeyValueList>();
+export class KeyValueList<T extends IKeyValue> {
+  list = model<T[]>();
 
   removeItem(remove_index: number) {
     this.list.set(
@@ -20,6 +20,6 @@ export class KeyValueList {
   }
 
   protected addItem() {
-    this.list.set([...(this.list() ?? []), {key: '', value: ''}])
+    this.list.set([...(this.list() ?? []), ({key: '', value: ''} as T)])
   }
 }

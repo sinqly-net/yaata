@@ -5,9 +5,9 @@
   </div>
 
   <div class="flex items-center w-fit">
-    <input
-      class="size-4 mr-3 border-none rounded-xs bg-neutral-secondary-medium dark:bg-slate-800"
-      id="default-checkbox" type="checkbox">
+    <input [(ngModel)]="disabled"
+           class="size-4 mr-3 border-none rounded-xs bg-neutral-secondary-medium dark:bg-slate-800"
+           type="checkbox">
 
     <button (click)="removeItem()" class="size-[16px] mr-1">
       <svg viewBox="0 0 640 640" xmlns="http://www.w3.org/2000/svg">

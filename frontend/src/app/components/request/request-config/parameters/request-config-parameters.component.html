@@ -1,4 +1,4 @@
 <div>
-  <app-key-value-list>
-  </app-key-value-list>
+  <app-key-value-list (listChange)="currenRequestStore.update({query_params: ($event ?? [])})"
+                      [list]="currenRequestStore.query_params()"></app-key-value-list>
 </div>

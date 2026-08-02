@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, List
 
 from pydantic import ConfigDict
 
@@ -11,6 +11,6 @@ class RequestDTO(BaseSchema):
     name: str
     url: Optional[str]
     body: Optional[dict]
-    query_params: Optional[dict]
-    headers: Optional[dict]
+    query_params: Optional[List[dict]]
+    headers: Optional[List[dict]]
     method: HttpMethod

@@ -1,6 +1,7 @@
 <div>
   @for (obj of list(); track obj; let index = $index) {
-    <app-key-value-list-item [index]="index" [key]="obj.key" [value]="obj.value"></app-key-value-list-item>
+    <app-key-value-list-item [disabled]="obj.disabled" [index]="index" [key]="obj.key"
+                             [value]="obj.value"></app-key-value-list-item>
   }
 
   <button (click)="addItem()" class="rounded bg-slate-700 add-item w-full mt-1 py-1">

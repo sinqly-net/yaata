@@ -1,1 +1,4 @@
-<p>request-headers works!</p>
+<div>
+  <app-key-value-list (listChange)="currenRequestStore.update({headers: ($event ?? [])})"
+                      [list]="currenRequestStore.headers()"></app-key-value-list>
+</div>

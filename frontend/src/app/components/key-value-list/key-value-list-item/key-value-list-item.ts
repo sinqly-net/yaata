@@ -1,7 +1,7 @@
 import {Component, inject, input, model} from '@angular/core';
 import {KeyValueList} from 'components/key-value-list/key-value-list';
 import {FormsModule} from '@angular/forms';
-import {RequestValue} from 'types/Request';
+import {TValue} from 'types/KeyValue';
 
 @Component({
   selector: 'app-key-value-list-item',
@@ -13,8 +13,9 @@ import {RequestValue} from 'types/Request';
 })
 export class KeyValueListItem {
   key = model<string>();
-  value = model<RequestValue>();
+  value = model<TValue>();
   index = input.required<number>();
+  disabled = input<boolean>(false);
 
   private wrapper = inject(KeyValueList);
 

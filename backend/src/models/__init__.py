@@ -2,6 +2,7 @@ from .collection import *
 from .db import *
 from .folder import *
 from .request import *
+from .request_history import *
 from .session import *
 from .user import *
 from .workspace import *

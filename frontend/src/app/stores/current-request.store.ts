@@ -10,7 +10,8 @@ const initialState: Request = {
   body: {},
   query_params: [],
   headers: [],
-  method: 'GET'
+  method: 'GET',
+  history: []
 }
 
 export const CurrentRequestStore = signalStore(
@@ -28,6 +29,20 @@ export const CurrentRequestStore = signalStore(
     },
     update(update: Partial<Request>) {
       patchState(store, {...update});
+    },
+    toObject() {
+      return {
+        id: store.id(),
+        created_at: store.created_at(),
+        updated_at: store.updated_at?.(),
+        name: store.name(),
+        url: store.url(),
+        body: store.body(),
+        query_params: store.query_params(),
+        headers: store.headers(),
+        method: store.method(),
+        history: store.history?.()
+      } as Request;
     }
   }))
 );

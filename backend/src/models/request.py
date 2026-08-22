@@ -1,3 +1,5 @@
+from typing import List
+
 from sqlalchemy import Column, String, JSON, UUID, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -15,3 +17,4 @@ class Request(BaseTableEntity):
     method = Column(String, default=HttpMethod.GET.value, nullable=False)  # enum HttpMethod
     folder_id: Mapped[UUID] = mapped_column(ForeignKey("folder.id"))
     folder: Mapped["Folder"] = relationship(back_populates="requests", lazy="selectin")
+    history: Mapped[List["RequestHistory"]] = relationship(back_populates="request", lazy="selectin")

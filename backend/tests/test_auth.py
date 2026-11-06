@@ -15,8 +15,6 @@ from urllib.parse import parse_qs, urlparse
 from fastapi import FastAPI
 from httpx import ASGITransport, AsyncClient
 
-from utils.token_endpoint import call_token_endpoint
-
 SRC_PATH = Path(__file__).resolve().parents[1] / "src"
 sys.path.insert(0, str(SRC_PATH))
 

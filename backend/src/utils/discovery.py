@@ -15,7 +15,8 @@ class DiscoveryCache:
 
     def _fetch_sync(self) -> dict:
         resp = requests.get(
-            f"{config.oidc.issuer}/.well-known/openid-configuration", timeout=10
+            f"{str(config.oidc.issuer).rstrip('/')}/.well-known/openid-configuration",
+            timeout=10,
         )
         resp.raise_for_status()
         return resp.json()

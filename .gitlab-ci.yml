@@ -1,0 +1,49 @@
+stages:
+  - test
+  - mirror
+
+backend-tests:
+  stage: test
+  image: python:3.15-slim
+  variables:
+    UV_CACHE_DIR: "$CI_PROJECT_DIR/.cache/uv"
+    UV_LINK_MODE: copy
+  cache:
+    key:
+      files:
+        - backend/uv.lock
+    paths:
+      - .cache/uv
+  script:
+    - apt-get update
+    - apt-get install -y --no-install-recommends build-essential libpq-dev
+    - python -m pip install --no-cache-dir uv
+    - cd backend
+    - uv sync --locked
+    - uv run --no-sync python -m unittest discover -s tests -v
+
+mirror-github-staging:
+  stage: mirror
+  image: alpine:3.22
+  variables:
+    GIT_DEPTH: "0"
+    GIT_TERMINAL_PROMPT: "0"
+  needs:
+    - job: backend-tests
+      artifacts: false
+  resource_group: github-staging-mirror
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH == "staging"'
+  script:
+    - apk add --no-cache git
+    - ': "${GITHUB_TOKEN:?Set the protected GITHUB_TOKEN CI/CD variable}"'
+    - export GIT_ASKPASS="$CI_PROJECT_DIR/.gitlab/github-askpass.sh"
+    - git fetch --no-tags origin "$CI_COMMIT_BRANCH"
+    - |
+      gitlab_staging_tip=$(git rev-parse FETCH_HEAD)
+      if [ "$gitlab_staging_tip" != "$CI_COMMIT_SHA" ]; then
+        echo "Skipping stale staging pipeline commit."
+        exit 0
+      fi
+    - git remote add github https://github.com/sinqly/yaata.git
+    - git push github "$CI_COMMIT_SHA:refs/heads/staging"

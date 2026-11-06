@@ -63,9 +63,11 @@ branch mirrors that commit to `https://github.com/sinqly-net/yaata.git`, also on
 skipped, mirror jobs are serialized, and Git rejects non-fast-forward pushes
 rather than overwriting GitHub history.
 
-For the mirror job, add a masked and protected GitLab CI/CD variable named
-`GITHUB_TOKEN`. Its GitHub fine-grained personal access token should be limited
-to the `sinqly-net/yaata` repository and have **Contents: Read and write** access.
-Protect the GitLab `staging` branch so the protected variable is available to
-its pipeline. The mirror job fails if the token is missing or GitHub rejects
+For the mirror job, add a masked GitLab CI/CD variable named `GITHUB_TOKEN`.
+Its GitHub fine-grained personal access token should be limited to the
+`sinqly-net/yaata` repository and have **Contents: Read and write** access. If
+the GitLab `staging` branch is unprotected, the variable must also be
+unprotected to be available to its pipeline. This makes the token available to
+pipelines on other unprotected refs too, so restrict who can change and run
+pipeline code. The mirror job fails if the token is missing or GitHub rejects
 the push; it does not put the token in the remote URL.

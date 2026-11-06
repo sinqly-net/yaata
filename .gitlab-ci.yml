@@ -38,7 +38,7 @@ mirror-github-staging:
     - if: $CI_COMMIT_BRANCH == "staging"
   script:
     - apk add --no-cache git
-    - ': "${GITHUB_TOKEN:?Set the protected GITHUB_TOKEN CI/CD variable}"'
+    - ': "${GITHUB_TOKEN:?Set the GITHUB_TOKEN CI/CD variable}"'
     - export GIT_ASKPASS="$CI_PROJECT_DIR/.gitlab/github-askpass.sh"
     - git fetch --no-tags origin "$CI_COMMIT_BRANCH"
     - |
@@ -47,5 +47,4 @@ mirror-github-staging:
         echo "Skipping stale staging pipeline commit."
         exit 0
       fi
-    - git remote add github https://github.com/sinqly-net/yaata.git
-    - git push github "$CI_COMMIT_SHA:refs/heads/staging"
+    - git push https://github.com/sinqly-net/yaata.git "$CI_COMMIT_SHA:refs/heads/staging"

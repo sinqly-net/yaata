@@ -58,14 +58,14 @@ uv run --no-sync python -m unittest discover -s tests -v
 ## GitHub staging mirror
 
 After the backend test job passes, a push pipeline for the GitLab `staging`
-branch mirrors that commit to `https://github.com/sinqly/yaata.git`, also on
+branch mirrors that commit to `https://github.com/sinqly-net/yaata.git`, also on
 `staging`. Other branches and tags are not pushed. Stale staging pipelines are
 skipped, mirror jobs are serialized, and Git rejects non-fast-forward pushes
 rather than overwriting GitHub history.
 
 For the mirror job, add a masked and protected GitLab CI/CD variable named
 `GITHUB_TOKEN`. Its GitHub fine-grained personal access token should be limited
-to the `sinqly/yaata` repository and have **Contents: Read and write** access.
+to the `sinqly-net/yaata` repository and have **Contents: Read and write** access.
 Protect the GitLab `staging` branch so the protected variable is available to
 its pipeline. The mirror job fails if the token is missing or GitHub rejects
 the push; it does not put the token in the remote URL.

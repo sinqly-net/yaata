@@ -47,5 +47,5 @@ mirror-github-staging:
         echo "Skipping stale staging pipeline commit."
         exit 0
       fi
-    - git remote add github https://github.com/sinqly/yaata.git
+    - git remote add github https://github.com/sinqly-net/yaata.git
     - git push github "$CI_COMMIT_SHA:refs/heads/staging"

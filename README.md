@@ -41,10 +41,11 @@ needs to be created before the backend can use the database.
 
 ## Backend tests
 
-The backend tests run as an independent GitLab CI job. The job installs the
-locked Python dependencies and runs the standard-library `unittest` suite; it
-does not start the backend, PostgreSQL, or Keycloak, and it does not need the
-local `backend/config.yaml` file.
+The backend tests run as an independent GitLab CI job when a commit is pushed
+to the `staging` branch. The job installs the locked Python dependencies and
+runs the standard-library `unittest` suite; it does not start the backend,
+PostgreSQL, or Keycloak, and it does not need the local `backend/config.yaml`
+file.
 
 To run the same checks locally from the repository root:
 

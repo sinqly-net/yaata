@@ -5,6 +5,8 @@ stages:
 backend-tests:
   stage: test
   image: python:3.15-slim
+  rules:
+    - if: $CI_COMMIT_BRANCH == "staging"
   variables:
     UV_CACHE_DIR: "$CI_PROJECT_DIR/.cache/uv"
     UV_LINK_MODE: copy

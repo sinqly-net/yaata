@@ -1,0 +1,21 @@
+// Variable input custom styles
+:host {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+input {
+  outline: none !important;
+  box-shadow: none !important;
+  border: none !important;
+
+  &:focus,
+  &:focus-visible {
+    outline: none !important;
+    box-shadow: none !important;
+    border: none !important;
+    --tw-ring-shadow: none !important;
+    --tw-ring-color: transparent !important;
+  }
+}

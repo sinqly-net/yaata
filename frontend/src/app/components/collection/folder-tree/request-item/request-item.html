@@ -1,3 +1,37 @@
-<button (click)="selectRequest()">
-  <span>{{ request().name }}</span>
+<button
+  type="button"
+  (click)="selectRequest()"
+  (contextmenu)="onContextMenu($event)"
+  [style.padding-left]="(margin_index() * 12 + 16) + 'px'"
+  [class.bg-slate-700]="isSelected()"
+  [class.text-white]="isSelected()"
+  [class.font-medium]="isSelected()"
+  [class.border-sky-400]="isSelected()"
+  [class.text-slate-300]="!isSelected()"
+  [class.hover:bg-slate-700/50]="!isSelected()"
+  [class.hover:text-slate-100]="!isSelected()"
+  [class.border-transparent]="!isSelected()"
+  class="w-full flex items-center gap-2 py-1 px-2 my-0.5 rounded text-left transition-colors duration-100 cursor-pointer border-l-2 focus:outline-none select-none text-xs group"
+  [title]="request().name || request().url"
+>
+  <span
+    class="text-[9px] font-mono font-bold px-1 py-0.5 rounded uppercase shrink-0 border"
+    [class]="getMethodBadgeClass(request().method)"
+  >
+    {{ getMethodShort(request().method) }}
+  </span>
+  <span class="truncate flex-1">
+    {{ request().name }}
+  </span>
+
+  <!-- Quick Options Trigger on Hover -->
+  <span
+    (click)="$event.stopPropagation(); onContextMenu($event)"
+    class="opacity-0 group-hover:opacity-100 p-0.5 text-slate-400 hover:text-white hover:bg-slate-600/60 rounded transition-all cursor-pointer"
+    title="Optionen (Rechtsklick)"
+  >
+    <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
+      <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z" />
+    </svg>
+  </span>
 </button>

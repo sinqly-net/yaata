@@ -1,10 +1,54 @@
-<div class="grid grid-cols-2">
-  <!-- The Type, url and send -->
-  <div class="col-span-1 pr-2.5">
-    <app-request-config></app-request-config>
+<div #splitContainer class="flex flex-col h-full min-h-0 w-full overflow-hidden select-none" [class.select-none]="isDragging()">
+  <!-- Request Configuration Panel (Top) -->
+  <section
+    aria-label="Anfrage Konfiguration"
+    class="min-h-0 flex flex-col overflow-hidden bg-slate-900/60 rounded-xl border border-slate-800/90 shadow-sm p-3.5 transition-[flex-basis,height] duration-75"
+    [style.height.%]="splitPercent()"
+    [style.flex-basis.%]="splitPercent()">
+    <app-request-config class="h-full flex flex-col min-h-0"></app-request-config>
+  </section>
+
+  <!-- Resizable Divider / Splitter Line -->
+  <div
+    role="separator"
+    aria-label="Größe zwischen Anfrage und Antwort anpassen"
+    aria-orientation="horizontal"
+    [attr.aria-valuenow]="splitPercent()"
+    aria-valuemin="15"
+    aria-valuemax="85"
+    tabindex="0"
+    (mousedown)="startDragging($event)"
+    (touchstart)="startDraggingTouch($event)"
+    (dblclick)="resetSplit()"
+    (keydown)="handleSplitterKey($event)"
+    title="Ziehen zum Vergrößern/Verkleinern (Doppelklick zum Zurücksetzen)"
+    class="group relative shrink-0 my-1 py-1.5 flex items-center justify-center cursor-row-resize select-none touch-none rounded transition-colors focus:outline-none focus:ring-1 focus:ring-cyan-500/50">
+    <!-- Visual divider line -->
+    <div
+      class="w-full h-0.5 rounded-full transition-colors duration-150"
+      [class.bg-cyan-400]="isDragging()"
+      [class.bg-slate-700/70]="!isDragging()"
+      [class.group-hover:bg-cyan-400/80]="!isDragging()"></div>
+
+    <!-- Grab handle pills / dots in center -->
+    <div
+      class="absolute left-1/2 -translate-x-1/2 flex items-center gap-1 px-2.5 py-0.5 rounded-full border border-slate-700/80 shadow-sm transition-all duration-150"
+      [class.bg-cyan-600]="isDragging()"
+      [class.text-white]="isDragging()"
+      [class.border-cyan-400]="isDragging()"
+      [class.bg-slate-800]="!isDragging()"
+      [class.group-hover:bg-slate-700]="!isDragging()"
+      [class.group-hover:border-slate-500]="!isDragging()">
+      <div class="w-1 h-1 rounded-full" [class.bg-cyan-200]="isDragging()" [class.bg-slate-400]="!isDragging()" [class.group-hover:bg-cyan-300]="!isDragging()"></div>
+      <div class="w-1 h-1 rounded-full" [class.bg-cyan-200]="isDragging()" [class.bg-slate-400]="!isDragging()" [class.group-hover:bg-cyan-300]="!isDragging()"></div>
+      <div class="w-1 h-1 rounded-full" [class.bg-cyan-200]="isDragging()" [class.bg-slate-400]="!isDragging()" [class.group-hover:bg-cyan-300]="!isDragging()"></div>
+    </div>
   </div>
 
-  <div class="col-span-1 pl-2.5">
-    <app-request-result></app-request-result>
-  </div>
+  <!-- Request Result Panel (Bottom) -->
+  <section
+    aria-label="Antwort und Ergebnis"
+    class="flex-1 min-h-0 flex flex-col overflow-hidden bg-slate-900/60 rounded-xl border border-slate-800/90 shadow-sm p-3.5">
+    <app-request-result class="h-full flex flex-col min-h-0"></app-request-result>
+  </section>
 </div>

@@ -1,0 +1,70 @@
+<div class="relative inline-block w-full h-full select-none" (keydown)="onKeydown($event)">
+  <!-- Trigger Button -->
+  <button
+    type="button"
+    [disabled]="disabled()"
+    (click)="toggleDropdown()"
+    [class]="getMethodClass(method()) + ' ' + buttonClass()"
+    class="w-full h-full flex items-center justify-between gap-2 px-3 py-1.5 border font-mono font-bold text-xs outline-none focus:outline-none focus:ring-0 cursor-pointer transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-left"
+    [attr.aria-expanded]="isOpen()"
+    aria-haspopup="listbox"
+  >
+    <span class="tracking-wide">{{ method() }}</span>
+    <svg
+      class="w-3.5 h-3.5 transition-transform duration-200 shrink-0 opacity-80"
+      [class.rotate-180]="isOpen()"
+      fill="none"
+      stroke="currentColor"
+      viewBox="0 0 24 24"
+    >
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7" />
+    </svg>
+  </button>
+
+  <!-- Custom Dropdown Menu -->
+  @if (isOpen()) {
+    <div
+      class="absolute left-0 top-full mt-1.5 z-50 min-w-[140px] w-full bg-slate-900/95 backdrop-blur-md border border-slate-700/80 rounded-lg shadow-2xl p-1 animate-in fade-in zoom-in-95 duration-100 overflow-hidden"
+      [class]="dropdownClass()"
+      role="listbox"
+      tabindex="-1"
+    >
+      <div class="max-h-60 overflow-y-auto space-y-0.5 custom-scrollbar">
+        @for (m of methods; track m; let idx = $index) {
+          <div
+            role="option"
+            [attr.aria-selected]="method() === m"
+            (click)="selectMethod(m)"
+            (mouseenter)="focusedIndex.set(idx)"
+            class="flex items-center justify-between px-2.5 py-1.5 rounded-md text-xs font-mono font-bold transition-colors cursor-pointer"
+            [class.bg-slate-800]="focusedIndex() === idx && method() !== m"
+            [class.bg-slate-800\/90]="method() === m"
+            [class]="getMethodTextColorClass(m)"
+          >
+            <div class="flex items-center gap-2">
+              <span
+                class="inline-block w-2 h-2 rounded-full"
+                [class.bg-emerald-400]="m === 'GET'"
+                [class.bg-amber-400]="m === 'POST'"
+                [class.bg-blue-400]="m === 'PUT'"
+                [class.bg-rose-400]="m === 'DELETE'"
+                [class.bg-purple-400]="m === 'PATCH'"
+                [class.bg-cyan-400]="m === 'HEAD'"
+                [class.bg-pink-400]="m === 'OPTIONS'"
+                [class.bg-indigo-400]="m === 'TRACE'"
+                [class.bg-teal-400]="m === 'CONNECT'"
+              ></span>
+              <span class="tracking-wide">{{ m }}</span>
+            </div>
+
+            @if (method() === m) {
+              <svg class="w-3.5 h-3.5 text-slate-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
+              </svg>
+            }
+          </div>
+        }
+      </div>
+    </div>
+  }
+</div>

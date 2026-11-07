@@ -1,23 +1,97 @@
-<form>
-  <div class="flex shadow rounded-base -space-x-0.5 text-heading dark:text-gray-200 text-sm">
-    <select
-      [value]="request.method()"
-      class="block px-3 py-2.5 pr-8 bg-neutral-secondary-medium dark:bg-slate-600 border border-default-medium dark:border-slate-800 rounded-s-base placeholder:text-body outline-none"
-      id="methode">
-      @for (method of RequestMethodes; track method) {
-        <option [selected]="request.method() === method" [value]="method">{{ method | titlecase }}</option>
+<form (submit)="$event.preventDefault()" class="relative">
+  <div class="flex items-stretch shadow rounded text-gray-200 text-sm">
+    <div class="shrink-0 h-9">
+      <app-method-select
+        [method]="request.method()"
+        (methodChange)="onMethodChange($event)"
+        buttonClass="rounded-l rounded-r-none border-r-0 h-9"
+        dropdownClass="w-36"
+        id="methode"
+      />
+    </div>
+
+    <div class="relative flex-1 min-w-0 flex items-stretch">
+      <app-variable-input
+        [value]="request.url()"
+        (valueChange)="onUrlChange($event)"
+        (keydownEnter)="sendRequest()"
+        [placeholder]="'https://api.example.com/v1/resource oder ' + ('${request_1.url}')"
+        containerClass="rounded-none border-x-0 bg-slate-800 h-9"
+        id="url">
+        <!-- Variable syntax help guide toggle inside toolbar -->
+        <button
+          extraActions
+          type="button"
+          (click)="toggleVariableHelper()"
+          [class.text-sky-400]="showVariableHelper()"
+          [class.text-slate-400]="!showVariableHelper()"
+          class="p-1 rounded hover:text-white hover:bg-slate-800 transition-colors cursor-pointer"
+          title="Hilfe zur dynamischen Parameter-Syntax">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+        </button>
+      </app-variable-input>
+    </div>
+
+    <button
+      (click)="sendRequest()"
+      [disabled]="request.isExecuting()"
+      class="h-9 inline-flex items-center justify-center gap-1.5 bg-sky-600 hover:bg-sky-500 disabled:bg-slate-700 disabled:text-slate-400 disabled:cursor-not-allowed text-white font-medium text-xs rounded-r px-4 border border-sky-600 transition-colors focus:outline-none cursor-pointer shrink-0"
+      type="button"
+      title="Anfrage senden (Strg+Enter / ⌘+Enter)">
+      @if (request.isExecuting()) {
+        <svg class="animate-spin -ml-1 mr-1 h-3.5 w-3.5 text-white" fill="none" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        </svg>
+        <span>Sending...</span>
+      } @else {
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+        </svg>
+        <span>Send</span>
+        <span class="text-[10px] text-sky-200/80 bg-sky-700/60 px-1 py-0.5 rounded font-mono hidden sm:inline-block">⌘⏎</span>
       }
-    </select>
-
-    <input
-      [value]="request.url()"
-      class="px-3 py-2.5 bg-neutral-secondary-medium dark:bg-slate-600 border border-default-medium dark:border-slate-800 block w-full placeholder:text-body focus:outline-none"
-      id="url" placeholder="URL" type="search">
-
-    <button (click)="sendRequest()"
-            class="inline-flex items-center bg-blue-700 hover:bg-blue-800 box-border border border-transparent font-medium leading-5 rounded-e-base px-4 py-2.5 focus:outline-none"
-            type="button">
-      Send
     </button>
   </div>
+
+  <!-- Dynamic Variable Syntax Guide Popover -->
+  @if (showVariableHelper()) {
+    <div class="absolute left-0 right-0 top-full mt-2 z-30 p-3 bg-slate-900 border border-slate-700 rounded-lg shadow-xl text-xs space-y-2 animate-fadeIn">
+      <div class="flex items-center justify-between pb-1.5 border-b border-slate-800">
+        <div class="flex items-center gap-2">
+          <span class="font-bold text-sky-400 font-mono">{{ '${request.field}' }}</span>
+          <span class="text-slate-200 font-semibold">Dynamische Parameter-Verkettung</span>
+        </div>
+        <button
+          type="button"
+          (click)="toggleVariableHelper()"
+          class="text-slate-400 hover:text-white p-0.5 rounded cursor-pointer">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </button>
+      </div>
+
+      <p class="text-slate-300 text-[11px] leading-relaxed">
+        Nutze Werte aus vorherigen Anfragen direkt in <strong class="text-white">URL, Headers, Parametern</strong> und im <strong class="text-white">Body</strong>. Das Backend ersetzt diese Platzhalter automatisch vor dem Senden:
+      </p>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-2 text-[11px] font-mono">
+        <div class="bg-slate-950/80 p-2 rounded border border-slate-800">
+          <span class="text-sky-300 font-semibold block mb-0.5">JSON Antworten:</span>
+          <code class="text-amber-300 block">{{ '${login.auth_token}' }}</code>
+          <code class="text-amber-300 block">{{ '${login.data.user.id}' }}</code>
+          <code class="text-amber-300 block">{{ '${get_items.items[0].name}' }}</code>
+        </div>
+        <div class="bg-slate-950/80 p-2 rounded border border-slate-800">
+          <span class="text-sky-300 font-semibold block mb-0.5">XML & Header:</span>
+          <code class="text-amber-300 block">{{ '${xml_auth.token}' }}</code>
+          <code class="text-amber-300 block">{{ '${login.headers.set-cookie}' }}</code>
+          <code class="text-amber-300 block">{{ '${req_1.status}' }}</code>
+        </div>
+      </div>
+    </div>
+  }
 </form>

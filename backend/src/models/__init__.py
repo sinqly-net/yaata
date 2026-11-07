@@ -1,4 +1,5 @@
 from .collection import *
+from .collection_access import *
 from .db import *
 from .folder import *
 from .request import *

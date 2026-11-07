@@ -17,5 +17,25 @@ services:
       retries: 5
       start_period: 10s
 
+  flyway:
+    build:
+      context: ./migrations
+      dockerfile: Dockerfile
+    profiles:
+      - migrate
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      FLYWAY_URL: jdbc:postgresql://db:5432/postgres
+      FLYWAY_USER: postgres
+      FLYWAY_PASSWORD: postgres
+      FLYWAY_SCHEMAS: public
+      FLYWAY_LOCATIONS: filesystem:/flyway/migrations
+      FLYWAY_PLACEHOLDER_REPLACEMENT: "false"
+    volumes:
+      - ./migrations/sql:/flyway/migrations
+    command: migrate
+
 volumes:
   postgres_data:

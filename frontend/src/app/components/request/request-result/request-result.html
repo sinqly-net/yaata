@@ -1,5 +1,291 @@
-<div class="flex justify-end">
-  <div>
-    <app-request-result-status></app-request-result-status>
+<div class="flex flex-col h-full min-h-0 space-y-3 overflow-hidden">
+  <!-- Result Navigation Bar -->
+  <div class="shrink-0 flex items-center justify-between gap-3 pb-0.5">
+    <!-- Tabs -->
+    <app-tabs (selectedChange)="selectTab($event)" [selected]="activeTab()">
+      <app-tab-item key="body">Body</app-tab-item>
+      <app-tab-item key="headers" [badge]="responseHeadersList().length > 0 ? responseHeadersList().length : null">Headers</app-tab-item>
+      <app-tab-item key="snapshot">Snapshot</app-tab-item>
+      <app-tab-item key="history" [badge]="historyList().length > 0 ? historyList().length : null">Historie</app-tab-item>
+    </app-tabs>
+
+    <!-- Status indicator -->
+    <div class="shrink-0 flex items-center">
+      <app-request-result-status></app-request-result-status>
+    </div>
+  </div>
+
+  <!-- Tab Content Area -->
+  <div
+    class="flex-1 min-h-0 rounded-lg flex flex-col relative"
+    [class.p-0]="activeTab() === 'body' && result() && !isExecuting()"
+    [class.overflow-hidden]="activeTab() === 'body' && result() && !isExecuting()"
+    [class.p-3]="activeTab() !== 'body' || !result() || isExecuting()"
+    [class.overflow-y-auto]="activeTab() !== 'body' || !result() || isExecuting()"
+    [class.overflow-x-hidden]="activeTab() !== 'body' || !result() || isExecuting()"
+    [class.custom-result-scroll]="activeTab() !== 'body' || !result() || isExecuting()"
+    [class.bg-slate-950/40]="activeTab() !== 'body' || !result() || isExecuting()"
+    [class.border]="activeTab() !== 'body' || !result() || isExecuting()"
+    [class.border-slate-800/80]="activeTab() !== 'body' || !result() || isExecuting()">
+    <!-- Executing Loading state -->
+    @if (isExecuting()) {
+      <div class="flex flex-col items-center justify-center py-16 text-slate-400 space-y-3">
+        <svg class="animate-spin h-8 w-8 text-sky-400" fill="none" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        </svg>
+        <span class="text-xs">Führe Anfrage sicher über Backend aus und speichere Ergebnis...</span>
+      </div>
+    } @else {
+      <!-- 1. BODY TAB -->
+      @if (activeTab() === 'body') {
+        @if (result()) {
+          <!-- Floating Toolbar on right side over the response body -->
+          <div class="absolute top-2.5 right-4 z-10 flex items-center gap-1.5 p-1 rounded-lg bg-slate-900/80 backdrop-blur-md border border-slate-700/70 shadow-lg text-xs font-mono pointer-events-auto">
+            <!-- Mode toggles -->
+            <div class="flex items-center gap-0.5 bg-slate-950/80 p-0.5 rounded-md border border-slate-800/80">
+              <button
+                type="button"
+                (click)="setViewMode('pretty')"
+                [class.bg-slate-800]="viewMode() === 'pretty'"
+                [class.text-white]="viewMode() === 'pretty'"
+                [class.font-semibold]="viewMode() === 'pretty'"
+                [class.text-slate-400]="viewMode() !== 'pretty'"
+                class="px-2 py-0.5 rounded text-[11px] transition-colors hover:text-slate-200 cursor-pointer">
+                Pretty
+              </button>
+              <button
+                type="button"
+                (click)="setViewMode('raw')"
+                [class.bg-slate-800]="viewMode() === 'raw'"
+                [class.text-white]="viewMode() === 'raw'"
+                [class.font-semibold]="viewMode() === 'raw'"
+                [class.text-slate-400]="viewMode() !== 'raw'"
+                class="px-2 py-0.5 rounded text-[11px] transition-colors hover:text-slate-200 cursor-pointer">
+                Raw
+              </button>
+              @if (detectedType() === 'html' || detectedType() === 'image') {
+                <button
+                  type="button"
+                  (click)="setViewMode('preview')"
+                  [class.bg-slate-800]="viewMode() === 'preview'"
+                  [class.text-white]="viewMode() === 'preview'"
+                  [class.font-semibold]="viewMode() === 'preview'"
+                  [class.text-slate-400]="viewMode() !== 'preview'"
+                  class="px-2 py-0.5 rounded text-[11px] transition-colors hover:text-slate-200 cursor-pointer">
+                  Vorschau
+                </button>
+              }
+            </div>
+
+            <!-- Divider -->
+            <div class="h-3.5 w-px bg-slate-700/60 mx-0.5"></div>
+
+            <!-- Response Type Badge -->
+            @if (detectedType() !== 'empty') {
+              <span class="text-[10px] font-bold px-1.5 py-0.5 rounded border uppercase tracking-wider" [class]="getTypeBadgeClass(detectedType())">
+                {{ detectedType() }}
+              </span>
+            }
+
+            <!-- Size -->
+            <span class="text-[11px] text-slate-300 bg-slate-950/60 px-1.5 py-0.5 rounded border border-slate-800/80">{{ responseSizeFormatted() }}</span>
+
+            <!-- Divider -->
+            <div class="h-3.5 w-px bg-slate-700/60 mx-0.5"></div>
+
+            <!-- Copy button -->
+            <button
+              type="button"
+              (click)="copyBody()"
+              title="Antwort in die Zwischenablage kopieren"
+              class="px-2 py-0.5 text-[11px] rounded bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition-colors flex items-center gap-1 cursor-pointer shadow-sm">
+              @if (copied()) {
+                <svg class="w-3 h-3 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                </svg>
+                <span class="text-emerald-400 font-medium">Kopiert!</span>
+              } @else {
+                <svg class="w-3 h-3 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+                </svg>
+                <span>Kopieren</span>
+              }
+            </button>
+          </div>
+
+          @if (viewMode() === 'preview' && detectedType() === 'image' && imageSrc()) {
+            <div class="flex-1 h-full flex items-center justify-center p-4 bg-slate-950/40 rounded-lg border border-slate-800/80 overflow-auto">
+              <img [src]="imageSrc()" alt="Response Bild" class="max-w-full max-h-full rounded object-contain shadow-md" />
+            </div>
+          } @else if (viewMode() === 'preview' && detectedType() === 'html' && safeHtmlPreview()) {
+            <div class="flex-1 h-full p-4 bg-white text-slate-900 rounded-lg overflow-auto shadow-md border border-slate-700" [innerHTML]="safeHtmlPreview()"></div>
+          } @else {
+            <app-json-editor
+              [value]="displayBody()"
+              [language]="responseLanguage()"
+              [readOnly]="true"></app-json-editor>
+          }
+        } @else {
+          <div class="flex flex-col items-center justify-center py-12 text-slate-400 text-xs">
+            <svg class="w-10 h-10 text-slate-600 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+            </svg>
+            <span>Noch keine Antwort vorhanden. Klicke auf "Send", um die Anfrage auszuführen.</span>
+          </div>
+        }
+      }
+
+      <!-- 2. HEADERS TAB -->
+      @if (activeTab() === 'headers') {
+        @if (responseHeadersList().length > 0) {
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs text-slate-300 font-mono">
+              <thead class="text-[11px] uppercase bg-slate-900/60 text-slate-400 border-b border-slate-700">
+                <tr>
+                  <th class="py-2 px-3 font-semibold">Header Name</th>
+                  <th class="py-2 px-3 font-semibold">Wert</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-800">
+                @for (header of responseHeadersList(); track header.key) {
+                  <tr class="hover:bg-slate-700/30">
+                    <td class="py-2 px-3 text-sky-400 font-medium whitespace-nowrap">{{ header.key }}</td>
+                    <td class="py-2 px-3 break-all">{{ header.value }}</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        } @else {
+          <div class="text-center py-10 text-xs text-slate-400">
+            Keine Response-Header vorhanden.
+          </div>
+        }
+      }
+
+      <!-- 3. REQUEST SNAPSHOT TAB -->
+      @if (activeTab() === 'snapshot') {
+        @if (result(); as res) {
+          <div class="space-y-4 text-xs font-mono">
+            <div class="flex items-center justify-between pb-2 border-b border-slate-700/80">
+              <span class="text-slate-400 font-sans text-xs">Gespeicherte Request-Konfiguration dieses Ausführungs-Laufs:</span>
+              <button
+                type="button"
+                (click)="restoreSnapshot(res)"
+                class="px-3 py-1 bg-sky-600 hover:bg-sky-500 text-white rounded font-sans text-xs transition-colors cursor-pointer flex items-center gap-1.5">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                </svg>
+                <span>Snapshot in Editor laden</span>
+              </button>
+            </div>
+
+            @if (restoredFeedback()) {
+              <div class="p-2 bg-emerald-950/80 border border-emerald-800 text-emerald-300 rounded text-xs font-sans">
+                Snapshot-Werte (URL, Methode, Parameter, Headers, Body) wurden erfolgreich in den Editor übernommen!
+              </div>
+            }
+
+            <div class="bg-slate-900/80 p-3 rounded-lg border border-slate-800 space-y-2">
+              <div class="flex items-center gap-2">
+                <span class="text-[10px] font-bold px-1.5 py-0.5 rounded border uppercase" [class]="getMethodBadgeClass(res.request_data?.method)">
+                  {{ res.request_data?.method || 'GET' }}
+                </span>
+                <span class="text-slate-100 break-all select-all font-semibold">
+                  {{ res.request_data?.url || '-' }}
+                </span>
+              </div>
+            </div>
+
+            @if (res.request_data?.query_params && res.request_data.query_params.length) {
+              <div>
+                <span class="text-slate-400 text-[11px] font-sans font-medium uppercase tracking-wider block mb-1">Query Parameter</span>
+                <pre class="bg-slate-900/60 p-2.5 rounded text-slate-300 border border-slate-800 text-xs">{{ res.request_data.query_params | json }}</pre>
+              </div>
+            }
+
+            @if (res.request_data?.headers && res.request_data.headers.length) {
+              <div>
+                <span class="text-slate-400 text-[11px] font-sans font-medium uppercase tracking-wider block mb-1">Request Headers</span>
+                <pre class="bg-slate-900/60 p-2.5 rounded text-slate-300 border border-slate-800 text-xs">{{ res.request_data.headers | json }}</pre>
+              </div>
+            }
+
+            @if (res.request_data?.body) {
+              <div>
+                <span class="text-slate-400 text-[11px] font-sans font-medium uppercase tracking-wider block mb-1">Request Body</span>
+                <pre class="bg-slate-900/60 p-2.5 rounded text-slate-300 border border-slate-800 text-xs overflow-x-auto">{{ res.request_data.body | json }}</pre>
+              </div>
+            }
+          </div>
+        } @else {
+          <div class="text-center py-10 text-xs text-slate-400">
+            Wähle einen Eintrag aus der Historie oder führe einen Request aus, um den Snapshot zu sehen.
+          </div>
+        }
+      }
+
+      <!-- 4. HISTORIE TAB -->
+      @if (activeTab() === 'history') {
+        @if (isHistoryLoading()) {
+          <div class="flex justify-center py-10 text-slate-400 text-xs">
+            Lade Historie aus der Datenbank...
+          </div>
+        } @else if (historyList().length > 0) {
+          <div class="space-y-1.5">
+            <div class="flex items-center justify-between pb-1 text-[11px] text-slate-400 font-sans px-1">
+              <span>Ausführungshistorie aus der Datenbank:</span>
+              <button
+                type="button"
+                (click)="requestStore.loadHistory()"
+                class="hover:text-slate-200 transition-colors flex items-center gap-1 cursor-pointer">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                </svg>
+                <span>Aktualisieren</span>
+              </button>
+            </div>
+
+            @for (item of historyList(); track item.id) {
+              <div
+                (click)="selectHistoryItem(item)"
+                [class.bg-slate-700]="requestStore.selectedHistoryId() === item.id"
+                [class.border-sky-400]="requestStore.selectedHistoryId() === item.id"
+                [class.bg-slate-900/60]="requestStore.selectedHistoryId() !== item.id"
+                [class.border-slate-800]="requestStore.selectedHistoryId() !== item.id"
+                class="p-2.5 rounded-lg border transition-all hover:bg-slate-700/50 cursor-pointer flex items-center justify-between text-xs font-mono">
+                <div class="flex items-center gap-2.5">
+                  <span class="text-[10px] font-bold px-1.5 py-0.5 rounded border uppercase" [class]="getMethodBadgeClass(item.request_data?.method)">
+                    {{ item.request_data?.method || 'REQ' }}
+                  </span>
+
+                  <span
+                    class="px-2 py-0.5 rounded border text-[11px] font-semibold"
+                    [class]="getStatusBadgeClass(item.status)">
+                    {{ item.status }} {{ item.status_text }}
+                  </span>
+
+                  <span class="text-slate-300 text-xs truncate max-w-xs font-sans" [title]="item.request_data?.url">
+                    {{ item.request_data?.url || 'Anfrage' }}
+                  </span>
+                </div>
+
+                <div class="flex items-center gap-3 text-slate-400 text-[11px]">
+                  @if (item.duration_ms !== null && item.duration_ms !== undefined) {
+                    <span>{{ item.duration_ms }} ms</span>
+                  }
+                  <span>{{ item.created_at | date:'dd.MM.yyyy HH:mm:ss' }}</span>
+                </div>
+              </div>
+            }
+          </div>
+        } @else {
+          <div class="text-center py-10 text-xs text-slate-400">
+            Noch keine Historie für diesen Request in der Datenbank vorhanden.
+          </div>
+        }
+      }
+    }
   </div>
 </div>

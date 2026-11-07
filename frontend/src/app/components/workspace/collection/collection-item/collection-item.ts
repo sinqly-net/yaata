@@ -1,4 +1,4 @@
-import {Component, inject, input} from '@angular/core';
+import {Component, computed, inject, input} from '@angular/core';
 import {Collection} from 'types/Collection';
 import {GlobalSelectionStore} from 'stores/global-selection-store';
 import {Router} from '@angular/router';
@@ -15,6 +15,10 @@ export class CollectionItem {
   workspace = input.required<Workspace>();
   protected globalSelectionStore = inject(GlobalSelectionStore);
   private readonly router = inject(Router);
+
+  isSelected = computed(() => {
+    return this.globalSelectionStore.selectedCollection?.()?.id === this.collection().id;
+  });
 
   protected selectCollection() {
     const exists = this.globalSelectionStore.selectCollection(this.collection().id);

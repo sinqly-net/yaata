@@ -22,6 +22,7 @@ export class TooltipDirective implements AfterViewInit {
     | 'left'>();
   tooltipShowArrow = input<boolean>(true);
   tooltipTrigger = input<'hover' | 'click'>('hover');
+  tooltipAppendToBody = input<boolean>(false);
 
   tooltipSwitchEvent = output<boolean>();
 
@@ -76,7 +77,11 @@ export class TooltipDirective implements AfterViewInit {
       this.tooltipElement = tooltipTemplateElement.children.item(
         0
       ) as HTMLElement;
-      parentElement.appendChild(tooltipTemplateElement);
+      if (this.tooltipAppendToBody()) {
+        document.body.appendChild(tooltipTemplateElement);
+      } else {
+        parentElement.appendChild(tooltipTemplateElement);
+      }
     }
   }
 

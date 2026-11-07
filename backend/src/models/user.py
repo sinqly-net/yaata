@@ -15,3 +15,4 @@ class User(BaseTableEntity):
     sessions: Mapped[List["Session"]] = relationship(back_populates="user", lazy="selectin")
     workspaces: Mapped[List["WorkspaceAccess"]] = relationship(back_populates="user", lazy="selectin")
     workspaces_created: Mapped[List["Workspace"]] = relationship(back_populates="creation_user", lazy="selectin")
+    shared_collections: Mapped[List["CollectionAccess"]] = relationship(back_populates="user", lazy="selectin")

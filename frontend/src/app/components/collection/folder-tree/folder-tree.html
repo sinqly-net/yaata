@@ -1,15 +1,65 @@
-<div [style.margin-left]="20 * margin_index() + 'px'" class="mt-[2px]">
-  <span>
-    {{ folder().name }}
-  </span>
-  <div class="ml-[20px]">
-    @for (request of folder().requests; track request.id) {
-      <app-request-item [request]="request"></app-request-item>
+<div class="folder-tree-node select-none">
+  <!-- Folder Header -->
+  <div
+    class="flex items-center gap-1.5 py-1 px-2 my-0.5 rounded text-left transition-colors duration-100 cursor-pointer text-slate-300 hover:bg-slate-700/50 hover:text-white text-xs group"
+    [style.padding-left]="(margin_index() * 12 + 6) + 'px'"
+    (click)="toggle()"
+    (contextmenu)="onContextMenu($event)"
+  >
+    <!-- Toggle Chevron -->
+    <svg
+      class="w-3.5 h-3.5 text-slate-400 transition-transform duration-150 shrink-0 group-hover:text-slate-200"
+      [class.rotate-90]="isOpen()"
+      fill="currentColor"
+      viewBox="0 0 20 20"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        fill-rule="evenodd"
+        d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+        clip-rule="evenodd"
+      />
+    </svg>
+
+    <!-- Folder icon -->
+    @if (isOpen()) {
+      <svg class="w-4 h-4 text-amber-400 shrink-0" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+        <path d="M2 6a2 2 0 012-2h5l2 2h5a2 2 0 012 2v2H2V6z" />
+        <path d="M2 10h16v4a2 2 0 01-2 2H4a2 2 0 01-2-2v-4z" />
+      </svg>
+    } @else {
+      <svg class="w-4 h-4 text-amber-400/90 shrink-0" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+        <path d="M2 6a2 2 0 012-2h5l2 2h5a2 2 0 012 2v6a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" />
+      </svg>
     }
+
+    <!-- Folder title -->
+    <span class="font-medium truncate flex-1 tracking-wide" [title]="folder().name">
+      {{ folder().name }}
+    </span>
+
+    <!-- Quick action button on hover -->
+    <button
+      type="button"
+      (click)="$event.stopPropagation(); onContextMenu($event)"
+      class="opacity-0 group-hover:opacity-100 p-0.5 text-slate-400 hover:text-white hover:bg-slate-600/60 rounded transition-all cursor-pointer"
+      title="Optionen (Rechtsklick)"
+    >
+      <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
+        <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z" />
+      </svg>
+    </button>
   </div>
-  <div>
-    @for (child_folder of folder().folders; track child_folder) {
-      <app-folder-tree [folder]="child_folder" [margin_index]="margin_index() + 1"></app-folder-tree>
-    }
-  </div>
+
+  <!-- Children -->
+  @if (isOpen()) {
+    <div class="folder-children">
+      @for (child_folder of folder().folders; track child_folder.id) {
+        <app-folder-tree [folder]="child_folder" [margin_index]="margin_index() + 1"></app-folder-tree>
+      }
+      @for (request of folder().requests; track request.id) {
+        <app-request-item [request]="request" [margin_index]="margin_index() + 1"></app-request-item>
+      }
+    </div>
+  }
 </div>

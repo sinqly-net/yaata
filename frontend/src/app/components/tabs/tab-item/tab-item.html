@@ -1,5 +1,26 @@
-<button (click)="onClick()" [class.tab-item-selected]="isSelected()" class="p-2 px-3">
-  <span class="text-sm">
+<button
+  type="button"
+  (click)="onClick()"
+  [class.bg-slate-800]="isSelected()"
+  [class.text-white]="isSelected()"
+  [class.font-semibold]="isSelected()"
+  [class.shadow-sm]="isSelected()"
+  [class.border-slate-700]="isSelected()"
+  [class.text-slate-400]="!isSelected()"
+  [class.border-transparent]="!isSelected()"
+  class="px-3 py-1.5 rounded-md text-xs border transition-all duration-150 flex items-center gap-1.5 cursor-pointer outline-none select-none hover:text-slate-200 hover:bg-slate-800/40">
+  <span class="inline-flex items-center gap-1.5">
     <ng-content></ng-content>
   </span>
+  @if (badge() !== null && badge() !== undefined && badge() !== '') {
+    <span
+      class="text-[10px] px-1.5 py-0.2 rounded-full font-mono transition-colors"
+      [class.bg-slate-700]="isSelected()"
+      [class.text-sky-300]="isSelected()"
+      [class.bg-slate-900]="!isSelected()"
+      [class.text-slate-400]="!isSelected()"
+      [class]="badgeClass()">
+      {{ badge() }}
+    </span>
+  }
 </button>

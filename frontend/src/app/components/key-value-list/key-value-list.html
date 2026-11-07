@@ -1,10 +1,45 @@
-<div>
-  @for (obj of list(); track obj; let index = $index) {
-    <app-key-value-list-item [disabled]="obj.disabled" [index]="index" [key]="obj.key"
-                             [value]="obj.value"></app-key-value-list-item>
-  }
+<div class="space-y-2">
+  <!-- Rows -->
+  <div class="space-y-1.5 max-h-[380px] overflow-y-auto pr-0.5 custom-scroll">
+    @for (item of list(); track $index; let index = $index) {
+      <app-key-value-list-item [item]="item" [index]="index"></app-key-value-list-item>
+    }
 
-  <button (click)="addItem()" class="rounded bg-slate-700 add-item w-full mt-1 py-1">
-    +
-  </button>
+    @if (!list() || list()!.length === 0) {
+      <div class="text-center py-6 px-4 border border-dashed border-slate-700/70 rounded-xl bg-slate-800/30">
+        <svg class="w-7 h-7 mx-auto text-slate-600 mb-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+        </svg>
+        <p class="text-xs text-slate-400 font-medium">Keine Einträge vorhanden</p>
+        <p class="text-[11px] text-slate-500 mt-0.5">Klicke auf "+ Eintrag hinzufügen", um einen neuen Schlüssel-Wert-Eintrag zu erstellen.</p>
+      </div>
+    }
+  </div>
+
+  <!-- Footer Actions -->
+  <div class="flex items-center justify-between pt-1">
+    <button
+      type="button"
+      (click)="addItem()"
+      class="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-dashed border-slate-600/80 bg-slate-800/50 hover:bg-sky-500/10 hover:border-sky-500/80 hover:text-sky-400 text-slate-300 text-xs font-medium transition-all duration-150 cursor-pointer shadow-sm">
+      <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+      </svg>
+      <span>Eintrag hinzufügen</span>
+    </button>
+
+    @if (list() && list()!.length > 0) {
+      <div class="flex items-center gap-3 text-xs text-slate-400">
+        <span class="text-[11px] font-mono bg-slate-800/80 border border-slate-700/60 px-2 py-0.5 rounded-md">
+          {{ activeCount() }} / {{ totalCount() }} aktiv
+        </span>
+        <button
+          type="button"
+          (click)="clearAll()"
+          class="text-[11px] text-slate-500 hover:text-rose-400 transition-colors cursor-pointer underline underline-offset-2">
+          Alle löschen
+        </button>
+      </div>
+    }
+  </div>
 </div>

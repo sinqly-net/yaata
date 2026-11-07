@@ -3,5 +3,6 @@ import {Base} from 'types/Base';
 
 export interface Workspace extends Base {
   name: string;
-  collections: Collection[];
+  created_by?: string;
+  collections?: Collection[];
 }

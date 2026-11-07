@@ -1,0 +1,97 @@
+<div
+  class="relative flex items-center flex-wrap gap-1.5 w-full bg-slate-900/80 border border-slate-700/80 rounded-md px-2.5 py-1 text-xs font-mono transition-all min-h-[36px] box-border focus-within:outline-none focus-within:ring-0"
+  [class.opacity-60]="disabled()"
+  [class]="containerClass()">
+
+  @if (!isRawMode()) {
+    <!-- Visual Segment Display: Text Inputs and Highlighted Variable Boxes -->
+    <div class="flex-1 flex items-center flex-wrap gap-1.5 min-w-0">
+      @for (segment of segments(); track $index) {
+        @if (segment.type === 'text') {
+          <input
+            type="text"
+            [value]="segment.value"
+            (input)="onTextSegmentChange($index, $event)"
+            (keydown)="onTextKeydown($event)"
+            [disabled]="disabled()"
+            [placeholder]="$index === 0 && segments().length === 1 ? placeholder() : ''"
+            [id]="id() ? id() + '-seg-' + $index : null"
+            class="bg-transparent border-none text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-0 focus:border-none min-w-[28px] flex-1 py-0.5 px-0.5 text-xs font-mono">
+        } @else if (segment.type === 'variable') {
+          <div
+            (click)="!disabled() && editVariable($index, segment)"
+            [class.cursor-pointer]="!disabled()"
+            class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-sky-950/80 border border-sky-500/50 hover:border-sky-400 hover:bg-sky-900/60 text-sky-200 text-[11px] font-mono shadow-sm group select-none transition-all shrink-0"
+            [title]="!disabled() ? 'Klicken zum Bearbeiten' : ''">
+            <span class="font-medium text-slate-100">{{ segment.requestName }}</span>
+            @if (segment.fieldPath) {
+              <span class="text-sky-400 font-bold">.</span>
+              <span class="text-amber-300 font-medium">{{ segment.fieldPath }}</span>
+            }
+
+            @if (!disabled()) {
+              <button
+                type="button"
+                (click)="$event.stopPropagation(); removeVariable($index)"
+                class="text-sky-400/80 hover:text-rose-400 hover:bg-rose-950/60 p-0.5 rounded transition-colors cursor-pointer ml-0.5"
+                title="Variable entfernen">
+                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+              </button>
+            }
+          </div>
+        }
+      }
+    </div>
+  } @else {
+    <!-- Raw Text Mode -->
+    <div class="flex-1 min-w-0">
+      <input
+        type="text"
+        [value]="value()"
+        (input)="onRawInput($event)"
+        (keydown)="onRawKeydown($event)"
+        [disabled]="disabled()"
+        [placeholder]="placeholder()"
+        [id]="id()"
+        class="w-full bg-transparent border-none text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-0 focus:border-none text-xs font-mono py-0.5">
+    </div>
+  }
+
+  <!-- Action Controls -->
+  @if (!disabled()) {
+    <div class="flex items-center gap-1 shrink-0 ml-auto pl-1 border-l border-slate-700/60">
+      <ng-content select="[extraActions]" />
+      @if (showAddButton()) {
+        <button
+          type="button"
+          (click)="openPicker()"
+          class="p-1 rounded text-sky-400 hover:text-sky-300 hover:bg-sky-950/50 font-mono text-[11px] font-bold transition-colors cursor-pointer"
+          title="Variable suchen & einfügen (${})">
+          &#36;&#123;&#125;
+        </button>
+      }
+
+      <button
+        type="button"
+        (click)="toggleRawMode()"
+        [class.text-sky-400]="isRawMode()"
+        [class.text-slate-500]="!isRawMode()"
+        class="p-1 rounded hover:text-slate-200 hover:bg-slate-800 transition-colors cursor-pointer"
+        [title]="isRawMode() ? 'Zu Box-Ansicht wechseln' : 'Zu Text-Ansicht wechseln'">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+        </svg>
+      </button>
+    </div>
+  }
+
+</div>
+
+<!-- Variable Picker Modal -->
+<app-variable-picker
+  [(isOpen)]="isPickerOpen"
+  [initialRequestName]="editingRequestName()"
+  [initialFieldPath]="editingFieldPath()"
+  (selected)="onVariableSelected($event)" />

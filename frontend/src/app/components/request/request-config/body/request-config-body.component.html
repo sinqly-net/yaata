@@ -1,9 +1,4 @@
-<div class="request-body mt-1">
-  <!--<app-json-editor
-    [(value)]="myJson"
-    [schema]="mySchema"
-    (validationErrors)="onErrors($event)">
-  </app-json-editor>-->
-  <app-json-editor (valueChange)="currenRequestStore.update({body: $event})"
-                   [value]="currenRequestStore.body()"></app-json-editor>
-</div>
+<app-json-editor
+  (submitShortcut)="currenRequestStore.sendRequest()"
+  (valueChange)="currenRequestStore.update({body: $event})"
+  [value]="currenRequestStore.body()"></app-json-editor>

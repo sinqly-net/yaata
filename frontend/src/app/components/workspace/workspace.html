@@ -1,6 +1,22 @@
-<div class="p-2 px-3 bg-slate-700 rounded">
-  <div class="mb-3">
-    <span>{{ globalSelectionStore.selectedWorkspace?.()?.workspace?.name }}</span>
+<div class="p-4 bg-slate-800/80 border border-slate-700/80 rounded-xl space-y-4">
+  <div class="flex items-center justify-between pb-3 border-b border-slate-700/80">
+    <div class="flex items-center gap-2.5">
+      <svg class="w-5 h-5 text-sky-400" fill="currentColor" viewBox="0 0 24 24">
+        <path clip-rule="evenodd" d="M5.024 3.783A1 1 0 0 1 6 3h12a1 1 0 0 1 .976.783L20.802 12h-4.244a1.99 1.99 0 0 0-1.824 1.205 2.978 2.978 0 0 1-5.468 0A1.991 1.991 0 0 0 7.442 12H3.198l1.826-8.217ZM3 14v5a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-5h-4.43a4.978 4.978 0 0 1-9.14 0H3Z" fill-rule="evenodd"/>
+      </svg>
+      <span class="text-base font-semibold text-white">{{ globalSelectionStore.selectedWorkspace?.()?.workspace?.name }}</span>
+      <button
+        type="button"
+        (click)="openEditModal()"
+        class="p-1 text-slate-400 hover:text-sky-300 hover:bg-slate-700/60 rounded transition-colors cursor-pointer"
+        title="Workspace umbenennen">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+        </svg>
+      </button>
+    </div>
   </div>
-  <app-collection></app-collection>
+  <app-collection-selection></app-collection-selection>
 </div>
+
+<app-workspace-modal></app-workspace-modal>

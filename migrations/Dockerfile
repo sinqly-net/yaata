@@ -1,0 +1,3 @@
+FROM flyway/flyway:13.12.0
+
+COPY sql/ /flyway/migrations/

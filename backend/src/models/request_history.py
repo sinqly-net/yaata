@@ -12,5 +12,7 @@ class RequestHistory(BaseTableEntity):
     headers = Column(JSON, nullable=True)
     body = Column(JSON, nullable=True)
     error = Column(JSON, nullable=True)
+    request_data = Column(JSON, nullable=True)
+    duration_ms = Column(Integer, nullable=True)
     request_id: Mapped[UUID] = mapped_column(ForeignKey("request.id"))
     request: Mapped["Request"] = relationship(back_populates="history", lazy="selectin")

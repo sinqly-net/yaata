@@ -1,80 +1,49 @@
 import {inject, Service} from '@angular/core';
-import {HttpClient, HttpErrorResponse, HttpHeaders, HttpParams, HttpResponse} from '@angular/common/http';
-import {catchError, map, Observable} from 'rxjs';
-import {IRequestResult, Request, RequestMethode} from 'types/Request';
-import {TKeyValueList, TValue} from 'types/KeyValue';
+import {HttpClient} from '@angular/common/http';
+import {Observable} from 'rxjs';
+import {environment} from 'root/environments/environment';
+import {Request} from 'types/Request';
+import {RequestHistory} from 'types/RequestHistory';
+import {UUID} from 'types/UUID';
 
 @Service()
 export class Requesting {
   private http = inject(HttpClient);
+  private backendUrl = environment.backend_url;
 
-  execute<T = unknown>(request: Request): Observable<IRequestResult> {
-    const method: RequestMethode = request.method;
-    const headers = this.toHttpHeaders(request.headers);
-    const params = this.toHttpParams(request.query_params);
-
-    const hasBody = !['GET', 'HEAD', 'TRACE', 'CONNECT'].includes(method);
-
-    return this.http
-      .request<T>(method, request.url, {
-        body: hasBody ? request.body : undefined,
-        headers,
-        params,
-        observe: 'response',
-        responseType: 'json',
-      })
-      .pipe(
-        map((response: HttpResponse<T>) => this.toApiResult<T>(response)),
-        catchError((error: HttpErrorResponse) => {
-          const result: IRequestResult = {
-            ok: false,
-            status: error.status,
-            statusText: error.statusText,
-            headers: error.headers,
-            url: error.url,
-            body: (error.error as T) ?? null,
-            error,
-          };
-          return [result];
-        })
-      );
+  execute(request: Request): Observable<RequestHistory> {
+    return this.http.post<RequestHistory>(
+      `${this.backendUrl}/request/execute`,
+      {
+        id: request.id,
+        name: request.name,
+        url: request.url,
+        method: request.method,
+        headers: request.headers,
+        query_params: request.query_params,
+        body: request.body,
+      },
+      {
+        withCredentials: true,
+      }
+    );
   }
 
-  private toHttpHeaders(list: TKeyValueList): HttpHeaders {
-    let headers = new HttpHeaders();
-    for (const entry of list ?? []) {
-      if (entry.disabled) continue;
-      headers = headers.set(entry.key, this.stringifyValue(entry.value));
-    }
-    return headers;
+  getHistory(requestId: UUID): Observable<RequestHistory[]> {
+    return this.http.get<RequestHistory[]>(
+      `${this.backendUrl}/request/${requestId}/history`,
+      {
+        withCredentials: true,
+      }
+    );
   }
 
-  private toHttpParams(list: TKeyValueList): HttpParams {
-    let params = new HttpParams();
-    for (const entry of list ?? []) {
-      if (entry.disabled) continue;
-      params = params.set(entry.key, this.stringifyValue(entry.value));
-    }
-    return params;
+  getHistoryDetail(historyId: UUID): Observable<RequestHistory> {
+    return this.http.get<RequestHistory>(
+      `${this.backendUrl}/request/history/${historyId}`,
+      {
+        withCredentials: true,
+      }
+    );
   }
-
-  private stringifyValue(value: TValue): string {
-    if (typeof value === 'object') {
-      return JSON.stringify(value);
-    }
-    return String(value);
-  }
-
-  private toApiResult<T>(response: HttpResponse<T>): IRequestResult {
-    return {
-      ok: response.ok,
-      status: response.status,
-      statusText: response.statusText,
-      headers: response.headers,
-      url: response.url,
-      body: response.body,
-      error: null,
-    };
-  }
-
 }

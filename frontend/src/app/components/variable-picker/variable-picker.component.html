@@ -1,0 +1,297 @@
+@if (isOpen()) {
+  <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-fadeIn">
+    <div class="bg-slate-900 border border-slate-700/80 rounded-xl shadow-2xl w-full max-w-2xl flex flex-col max-h-[85vh] overflow-hidden">
+
+      <!-- Header -->
+      <div class="px-5 py-4 border-b border-slate-800 flex items-center justify-between bg-slate-900/90 shrink-0">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-lg bg-sky-500/20 border border-sky-500/30 flex items-center justify-center text-sky-400 font-mono font-bold text-sm">
+            &#36;&#123;&#125;
+          </div>
+          <div>
+            <h3 class="text-sm font-semibold text-white">Variable einfügen</h3>
+            <p class="text-xs text-slate-400">Werte dynamisch aus vorherigen Anfragen verketten</p>
+          </div>
+        </div>
+        <button
+          type="button"
+          (click)="close()"
+          class="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800 transition-colors cursor-pointer">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Navigation / Step Tabs -->
+      <div class="px-5 py-2.5 bg-slate-950/50 border-b border-slate-800 flex items-center gap-2 text-xs shrink-0">
+        <button
+          type="button"
+          (click)="backToRequests()"
+          [class.text-sky-400]="!selectedRequest()"
+          [class.text-slate-300]="selectedRequest()"
+          class="flex items-center gap-1.5 font-medium hover:text-white transition-colors cursor-pointer">
+          <span class="w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold"
+                [class.bg-sky-500]="!selectedRequest()"
+                [class.text-white]="!selectedRequest()"
+                [class.bg-slate-800]="selectedRequest()"
+                [class.text-slate-400]="selectedRequest()">1</span>
+          <span>1. Anfrage wählen</span>
+        </button>
+
+        <span class="text-slate-600">/</span>
+
+        <div class="flex items-center gap-1.5 font-medium"
+             [class.text-sky-400]="selectedRequest()"
+             [class.text-slate-500]="!selectedRequest()">
+          <span class="w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold"
+                [class.bg-sky-500]="selectedRequest()"
+                [class.text-white]="selectedRequest()"
+                [class.bg-slate-800]="!selectedRequest()"
+                [class.text-slate-500]="!selectedRequest()">2</span>
+          <span>2. Feld aus neuester Historie</span>
+        </div>
+      </div>
+
+      <!-- Content Area -->
+      <div class="p-5 flex-1 overflow-y-auto min-h-0 space-y-4">
+
+        <!-- STEP 1: Select Request -->
+        @if (!selectedRequest()) {
+          <div class="space-y-3">
+            <div class="relative">
+              <input
+                type="text"
+                [ngModel]="requestSearch()"
+                (ngModelChange)="requestSearch.set($event)"
+                placeholder="Anfrage suchen (Name, URL, Ordner)..."
+                class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3.5 py-2 pl-9 text-xs font-sans text-slate-100 placeholder:text-slate-500 focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500 transition-colors">
+              <svg class="w-4 h-4 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+              </svg>
+            </div>
+
+            <div class="space-y-1.5 max-h-72 overflow-y-auto pr-1">
+              @for (item of filteredRequests(); track item.request.id) {
+                <button
+                  type="button"
+                  (click)="chooseRequest(item.request)"
+                  class="w-full text-left p-2.5 rounded-lg border border-slate-800/80 bg-slate-800/40 hover:bg-slate-800 hover:border-slate-700 transition-all cursor-pointer flex items-center justify-between group">
+                  <div class="flex items-center gap-2.5 min-w-0">
+                    <span class="px-1.5 py-0.5 rounded text-[10px] font-mono font-bold uppercase border shrink-0"
+                          [class]="getMethodClass(item.request.method)">
+                      {{ item.request.method }}
+                    </span>
+                    <div class="min-w-0">
+                      <div class="text-xs font-medium text-slate-200 group-hover:text-white truncate">
+                        {{ item.request.name }}
+                      </div>
+                      <div class="text-[11px] text-slate-500 truncate font-mono">
+                        {{ item.folderPath }} &bull; {{ item.request.url || 'Keine URL definiert' }}
+                      </div>
+                    </div>
+                  </div>
+                  <svg class="w-4 h-4 text-slate-500 group-hover:text-sky-400 group-hover:translate-x-0.5 transition-all shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                  </svg>
+                </button>
+              } @empty {
+                <div class="text-center py-8 text-slate-500 text-xs bg-slate-950/40 rounded-lg border border-slate-800/50">
+                  Keine Anfragen gefunden.
+                </div>
+              }
+            </div>
+          </div>
+        }
+
+        <!-- STEP 2: Select Field from Latest History -->
+        @if (selectedRequest()) {
+          <div class="space-y-4">
+
+            <!-- Selected Request Card -->
+            <div class="p-3 rounded-lg bg-slate-950/70 border border-slate-800 flex items-center justify-between">
+              <div class="flex items-center gap-2.5 min-w-0">
+                <span class="px-1.5 py-0.5 rounded text-[10px] font-mono font-bold uppercase border shrink-0"
+                      [class]="getMethodClass(selectedRequest()!.method)">
+                  {{ selectedRequest()!.method }}
+                </span>
+                <div class="min-w-0">
+                  <span class="text-xs font-semibold text-white truncate block">{{ selectedRequest()!.name }}</span>
+                  <span class="text-[11px] text-slate-400 font-mono truncate block">{{ selectedRequest()!.url }}</span>
+                </div>
+              </div>
+              <button
+                type="button"
+                (click)="backToRequests()"
+                class="text-xs text-sky-400 hover:text-sky-300 font-medium px-2 py-1 rounded hover:bg-sky-500/10 transition-colors shrink-0 cursor-pointer">
+                Ändern
+              </button>
+            </div>
+
+            <!-- History Status Banner -->
+            @if (isLoadingHistory()) {
+              <div class="flex items-center gap-2 p-3 rounded-lg bg-slate-800/50 text-slate-300 text-xs border border-slate-700/60">
+                <svg class="animate-spin w-4 h-4 text-sky-400" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <span>Lade neuesten Eintrag aus der Ausführungshistorie...</span>
+              </div>
+            } @else if (latestHistory()) {
+              <div class="flex items-center justify-between p-2.5 rounded-lg bg-emerald-950/20 border border-emerald-800/40 text-xs">
+                <div class="flex items-center gap-2">
+                  <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+                  <span class="text-emerald-300 font-medium">Neueste Ausführung:</span>
+                  <span class="px-1.5 py-0.2 rounded font-mono font-bold text-[11px]"
+                        [class.bg-emerald-900/60]="latestHistory()!.ok"
+                        [class.text-emerald-200]="latestHistory()!.ok"
+                        [class.bg-rose-900/60]="!latestHistory()!.ok"
+                        [class.text-rose-200]="!latestHistory()!.ok">
+                    {{ latestHistory()!.status }} {{ latestHistory()!.status_text || '' }}
+                  </span>
+                </div>
+                @if (latestHistory()!.duration_ms) {
+                  <span class="text-slate-400 font-mono text-[11px]">{{ latestHistory()!.duration_ms }} ms</span>
+                }
+              </div>
+            } @else if (hasLoadedHistory()) {
+              <div class="p-3 rounded-lg bg-amber-950/30 border border-amber-800/40 text-xs text-amber-200/90 space-y-1">
+                <div class="font-semibold flex items-center gap-1.5">
+                  <svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <span>Noch keine Historie vorhanden</span>
+                </div>
+                <p class="text-[11px] text-amber-300/80">
+                  Diese Anfrage wurde noch nicht ausgeführt. Du kannst dennoch ein Feld auswählen oder manuell eingeben:
+                </p>
+              </div>
+            }
+
+            <!-- Field Search and List -->
+            <div class="space-y-2">
+              <div class="flex items-center justify-between text-xs text-slate-300 font-medium">
+                <span>Verfügbare Felder (Klick zur Auswahl):</span>
+                @if (extractedFields().length > 0) {
+                  <span class="text-[11px] text-slate-500">{{ filteredFields().length }} von {{ extractedFields().length }} Feldern</span>
+                }
+              </div>
+
+              @if (extractedFields().length > 0) {
+                <div class="relative">
+                  <input
+                    type="text"
+                    [ngModel]="fieldSearch()"
+                    (ngModelChange)="fieldSearch.set($event)"
+                    placeholder="Feld suchen (z.B. token, user_id, headers)..."
+                    class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-1.5 pl-8 text-xs font-mono text-slate-100 placeholder:text-slate-500 focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500 transition-colors">
+                  <svg class="w-3.5 h-3.5 text-slate-500 absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                  </svg>
+                </div>
+
+                <div class="space-y-1 max-h-52 overflow-y-auto pr-1">
+                  @for (field of filteredFields(); track field.path) {
+                    <button
+                      type="button"
+                      (click)="selectField(field.path)"
+                      [class.bg-sky-950/60]="selectedField() === field.path"
+                      [class.border-sky-500]="selectedField() === field.path"
+                      [class.bg-slate-800/40]="selectedField() !== field.path"
+                      [class.border-slate-800]="selectedField() !== field.path"
+                      class="w-full text-left p-2 rounded-lg border hover:border-slate-600 hover:bg-slate-800/80 transition-all cursor-pointer flex items-center justify-between gap-3 group">
+                      <div class="flex items-center gap-2 min-w-0">
+                        <span class="text-[9px] font-bold px-1.5 py-0.2 rounded uppercase shrink-0 font-mono"
+                              [class.bg-sky-900/60]="field.category === 'body'"
+                              [class.text-sky-300]="field.category === 'body'"
+                              [class.bg-purple-900/60]="field.category === 'header'"
+                              [class.text-purple-300]="field.category === 'header'"
+                              [class.bg-emerald-900/60]="field.category === 'status'"
+                              [class.text-emerald-300]="field.category === 'status'">
+                          {{ field.category }}
+                        </span>
+                        <span class="font-mono text-xs font-semibold text-slate-100 group-hover:text-white truncate">
+                          {{ field.path }}
+                        </span>
+                      </div>
+                      <div class="text-[11px] font-mono text-amber-300/90 truncate max-w-[200px] text-right shrink-0">
+                        {{ field.valuePreview }}
+                      </div>
+                    </button>
+                  } @empty {
+                    <div class="text-center py-4 text-slate-500 text-xs">
+                      Kein passendes Feld gefunden.
+                    </div>
+                  }
+                </div>
+              }
+
+              <!-- Common Field Suggestions (always visible / fallback) -->
+              <div class="space-y-1.5 pt-2">
+                <span class="text-[11px] text-slate-400 font-medium block">Schnellauswahl gängiger Felder:</span>
+                <div class="flex flex-wrap gap-1.5">
+                  @for (sugg of ['token', 'access_token', 'user_id', 'id', 'status', 'headers.authorization']; track sugg) {
+                    <button
+                      type="button"
+                      (click)="selectField(sugg)"
+                      [class.bg-sky-600]="selectedField() === sugg"
+                      [class.text-white]="selectedField() === sugg"
+                      [class.bg-slate-800]="selectedField() !== sugg"
+                      [class.text-slate-300]="selectedField() !== sugg"
+                      class="px-2 py-1 rounded text-[11px] font-mono border border-slate-700/80 hover:bg-slate-700 transition-colors cursor-pointer">
+                      {{ sugg }}
+                    </button>
+                  }
+                </div>
+              </div>
+
+              <!-- Custom Field Input -->
+              <div class="space-y-1 pt-2">
+                <label class="text-[11px] text-slate-400 font-medium block">Oder eigenes Feld manuell eingeben:</label>
+                <input
+                  type="text"
+                  [ngModel]="customFieldInput()"
+                  (ngModelChange)="customFieldInput.set($event); selectedField.set('')"
+                  placeholder="z.B. data.user.id oder headers.set-cookie"
+                  class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-1.5 text-xs font-mono text-slate-100 placeholder:text-slate-600 focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500 transition-colors">
+              </div>
+
+            </div>
+          </div>
+        }
+
+      </div>
+
+      <!-- Footer -->
+      <div class="px-5 py-3.5 border-t border-slate-800 bg-slate-900/90 flex items-center justify-between gap-4 shrink-0">
+        <div class="flex items-center gap-2 min-w-0">
+          @if (selectedRequest()) {
+            <span class="text-xs text-slate-400 shrink-0">Vorschau:</span>
+            <code class="px-2.5 py-1 rounded bg-slate-950 border border-sky-500/40 text-amber-300 font-mono text-xs font-semibold truncate">
+              {{ previewVariable() }}
+            </code>
+          } @else {
+            <span class="text-xs text-slate-500">Wähle zuerst eine Anfrage aus</span>
+          }
+        </div>
+
+        <div class="flex items-center gap-2 shrink-0">
+          <button
+            type="button"
+            (click)="close()"
+            class="px-3 py-1.5 rounded-lg border border-slate-700 text-slate-300 hover:text-white hover:bg-slate-800 text-xs font-medium transition-colors cursor-pointer">
+            Abbrechen
+          </button>
+          <button
+            type="button"
+            (click)="confirmSelection()"
+            [disabled]="!selectedRequest()"
+            class="px-4 py-1.5 rounded-lg bg-sky-600 hover:bg-sky-500 disabled:bg-slate-800 disabled:text-slate-500 disabled:cursor-not-allowed text-white text-xs font-semibold transition-colors shadow cursor-pointer">
+            Variable einfügen
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+}

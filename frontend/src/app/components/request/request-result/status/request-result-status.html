@@ -1,1 +1,28 @@
-<p>request-result-status works!</p>
+@if (result(); as res) {
+  <div class="flex items-center gap-2 text-xs font-mono">
+    <!-- Status Code & Text -->
+    <div
+      class="px-2.5 py-1 rounded-md border font-semibold flex items-center gap-1.5 shadow-sm"
+      [class]="statusClass()">
+      <span class="w-2 h-2 rounded-full" [class.bg-emerald-400]="res.ok" [class.bg-rose-400]="!res.ok"></span>
+      <span>{{ res.status }} {{ res.status_text }}</span>
+    </div>
+
+    <!-- Duration -->
+    @if (res.duration_ms !== null && res.duration_ms !== undefined) {
+      <div class="px-2 py-1 rounded-md bg-slate-950/70 border border-slate-800 text-slate-300 flex items-center gap-1 text-[11px]">
+        <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+        </svg>
+        <span>{{ res.duration_ms }} ms</span>
+      </div>
+    }
+
+    <!-- Timestamp -->
+    @if (res.created_at) {
+      <div class="text-slate-400 text-[11px] hidden sm:block">
+        {{ res.created_at | date:'HH:mm:ss' }}
+      </div>
+    }
+  </div>
+}

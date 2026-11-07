@@ -1,10 +1,49 @@
-<button (click)="selectWorkspace()" [tooltip]="workspace().name" class="p-2" tooltipPlacement="right">
-  <svg [class.!text-sky-500]="workspace().id === globalSelectionStore.selectedWorkspace?.()?.workspace?.id"
-       aria-hidden="true"
-       class="w-4 h-4 text-gray-800 dark:text-white" fill="currentColor" height="24" viewBox="0 0 24 24" width="24"
-       xmlns="http://www.w3.org/2000/svg">
-    <path clip-rule="evenodd"
-          d="M5.024 3.783A1 1 0 0 1 6 3h12a1 1 0 0 1 .976.783L20.802 12h-4.244a1.99 1.99 0 0 0-1.824 1.205 2.978 2.978 0 0 1-5.468 0A1.991 1.991 0 0 0 7.442 12H3.198l1.826-8.217ZM3 14v5a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-5h-4.43a4.978 4.978 0 0 1-9.14 0H3Z"
-          fill-rule="evenodd"/>
-  </svg>
-</button>
+<div class="relative group flex items-center justify-center">
+  <button
+    type="button"
+    (click)="selectWorkspace()"
+    [tooltip]="workspace().name"
+    tooltipPlacement="right"
+    class="w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-150 cursor-pointer text-slate-300 hover:text-white"
+    [class.bg-sky-600]="workspace().id === globalSelectionStore.selectedWorkspace?.()?.workspace?.id"
+    [class.text-white]="workspace().id === globalSelectionStore.selectedWorkspace?.()?.workspace?.id"
+    [class.shadow-md]="workspace().id === globalSelectionStore.selectedWorkspace?.()?.workspace?.id"
+    [class.shadow-sky-500/25]="workspace().id === globalSelectionStore.selectedWorkspace?.()?.workspace?.id"
+    [class.hover:bg-slate-700/80]="workspace().id !== globalSelectionStore.selectedWorkspace?.()?.workspace?.id"
+    [class.bg-slate-800/80]="workspace().id !== globalSelectionStore.selectedWorkspace?.()?.workspace?.id">
+    <svg
+      class="w-5 h-5"
+      fill="currentColor"
+      viewBox="0 0 24 24">
+      <path clip-rule="evenodd"
+            d="M5.024 3.783A1 1 0 0 1 6 3h12a1 1 0 0 1 .976.783L20.802 12h-4.244a1.99 1.99 0 0 0-1.824 1.205 2.978 2.978 0 0 1-5.468 0A1.991 1.991 0 0 0 7.442 12H3.198l1.826-8.217ZM3 14v5a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-5h-4.43a4.978 4.978 0 0 1-9.14 0H3Z"
+            fill-rule="evenodd"/>
+    </svg>
+  </button>
+
+  <!-- Edit Quick Action on Hover -->
+  <button
+    type="button"
+    (click)="openEdit($event)"
+    [tooltip]="'Workspace bearbeiten'"
+    tooltipPlacement="right"
+    class="absolute -top-1 -right-1 w-5 h-5 bg-slate-900 border border-slate-600 hover:border-sky-400 text-slate-400 hover:text-sky-300 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-sm cursor-pointer z-10"
+    title="Workspace bearbeiten">
+    <svg class="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+    </svg>
+  </button>
+
+  <!-- Share Quick Action on Hover -->
+  <button
+    type="button"
+    (click)="openShare($event)"
+    [tooltip]="'Workspace teilen'"
+    tooltipPlacement="right"
+    class="absolute -bottom-1 -right-1 w-5 h-5 bg-slate-900 border border-slate-600 hover:border-sky-400 text-slate-400 hover:text-sky-300 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-sm cursor-pointer z-10"
+    title="Workspace teilen">
+    <svg class="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+    </svg>
+  </button>
+</div>

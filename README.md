@@ -35,9 +35,20 @@ intended user does not itself prevent other realm users from authenticating.
 This HTTP localhost setup and its development secret are not suitable for
 production.
 
-Starting PostgreSQL does not create the application's tables. The repository
-does not currently provide database migrations, so the required schema still
-needs to be created before the backend can use the database.
+The initial database schema is managed by Flyway using the SQLAlchemy models
+in `backend/src/models`. After starting PostgreSQL, apply the migration with:
+
+```sh
+docker compose -f docker-compose.local.yml --profile migrate run --rm flyway
+```
+
+The Flyway image is built from `migrations/Dockerfile`, and versioned SQL files
+are stored in `migrations/sql`. The first migration creates the tables needed by
+the current backend models. It is intended for a fresh database: Flyway will
+refuse to initialize a non-empty schema without migration history. Do not
+baseline or remove an existing database volume to work around that check; back
+up and plan an explicit adoption/upgrade first. PostgreSQL's initialization
+credentials only apply when its data volume is first created.
 
 ## Backend tests
 

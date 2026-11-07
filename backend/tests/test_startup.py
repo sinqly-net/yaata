@@ -6,6 +6,8 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
+from httpx import ASGITransport, AsyncClient
+
 SRC_PATH = Path(__file__).resolve().parents[1] / "src"
 sys.path.insert(0, str(SRC_PATH))
 
@@ -47,6 +49,17 @@ class BackendStartupTests(unittest.IsolatedAsyncioTestCase):
         async with self.main.lifespan(self.main.app):
             db_module = importlib.import_module("models.db")
             self.assertEqual(db_module.engine.url.drivername, "postgresql+asyncpg")
+
+    async def test_unauthenticated_routes_return_401_and_close_db_session(self):
+        async with self.main.lifespan(self.main.app):
+            async with AsyncClient(
+                transport=ASGITransport(app=self.main.app), base_url="http://test"
+            ) as client:
+                auth_response = await client.get("/auth/me")
+                workspace_response = await client.get("/workspace/access")
+
+        self.assertEqual(auth_response.status_code, 401)
+        self.assertEqual(workspace_response.status_code, 401)
 
 
 if __name__ == "__main__":

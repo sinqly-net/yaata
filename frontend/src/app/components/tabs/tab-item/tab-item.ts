@@ -10,6 +10,8 @@ import {Tabs} from 'components/tabs/tabs';
 })
 export class TabItem {
   key = input.required<string>();
+  badge = input<string | number | null>(null);
+  badgeClass = input<string>('');
 
   private wrapper = inject(Tabs);
 

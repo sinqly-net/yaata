@@ -31,10 +31,12 @@ declare const monaco: any;
 })
 export class JsonEditor implements AfterViewInit, OnDestroy, ControlValueAccessor {
   editorContainer = viewChild.required<ElementRef<HTMLDivElement>>('editorContainer');
-  value = model.required<object>();
+  value = model.required<any>();
+  language = input<string>('json');
   readOnly = input<boolean>(false);
   schema = input<object | null>(null);
   validationErrors = output<any[]>();
+  submitShortcut = output<void>();
 
   private monacoLoader = inject(MonacoLoader);
   private editor: any;
@@ -51,7 +53,7 @@ export class JsonEditor implements AfterViewInit, OnDestroy, ControlValueAccesso
       if (this.updatingFromEditor) {
         return;
       }
-      const jsonString = this.convertJsonToString(val) ?? '{}';
+      const jsonString = this.convertJsonToString(val) ?? '';
       if (this.editor.getValue() !== jsonString) {
         this.editor.setValue(jsonString);
       }
@@ -60,6 +62,16 @@ export class JsonEditor implements AfterViewInit, OnDestroy, ControlValueAccesso
     effect(() => {
       this.readOnly();
       this.editor?.updateOptions({readOnly: this.readOnly()});
+    });
+
+    effect(() => {
+      const lang = this.language();
+      if (this.editor && this.editorReady) {
+        const model = this.editor.getModel();
+        if (model) {
+          monaco.editor.setModelLanguage(model, lang || 'json');
+        }
+      }
     });
 
     effect(() => {
@@ -101,17 +113,19 @@ export class JsonEditor implements AfterViewInit, OnDestroy, ControlValueAccesso
     this.editor?.dispose();
   }
 
-  loadJsonFromString(json_string: string | undefined): object | undefined {
+  loadJsonFromString(json_string: string | undefined): any {
     if (!json_string) return undefined;
+    if (this.language() !== 'json') return json_string;
     try {
       return JSON.parse(json_string);
     } catch {
-      return undefined;
+      return json_string;
     }
   }
 
-  convertJsonToString(json: object | undefined): string | undefined {
-    if (json === undefined) return undefined;
+  convertJsonToString(json: any): string | undefined {
+    if (json === undefined || json === null) return '';
+    if (typeof json === 'string') return json;
     return JSON.stringify(json, null, 2);
   }
 
@@ -121,50 +135,70 @@ export class JsonEditor implements AfterViewInit, OnDestroy, ControlValueAccesso
   };
 
   private initEditor(): void {
-    monaco.editor.defineTheme('dark', {
+    monaco.editor.defineTheme('yaata-dark', {
       base: 'vs-dark',
       inherit: true,
       rules: [
-        {token: 'string.key.json', foreground: '9CDCFE'},
-        {token: 'string.value.json', foreground: 'CE9178'},
-        {token: 'number.json', foreground: 'B5CEA8'},
-        {token: 'keyword.json', foreground: '569CD6'}, // true/false/null
+        {token: 'string.key.json', foreground: '93C5FD'}, // sky-300
+        {token: 'string.value.json', foreground: 'FDBA74'}, // orange-300
+        {token: 'number.json', foreground: '86EFAC'}, // green-300
+        {token: 'keyword.json', foreground: 'F472B6'}, // pink-400 (true/false/null)
       ],
       colors: {
-        // These values got changed to custom values
-        'editor.background': '#2b394f', // background for code section
-        'editorGutter.background': '#263245', // left side bar background
-        'editor.lineHighlightBackground': '#30425b', // highlight for selected line
-
-        // These values are the defaults
-        'editor.foreground': '#cdd6f4',
-        'editor.selectionBackground': '#585b7099',
-        'editorCursor.foreground': '#f5e0dc',
-        'editorLineNumber.foreground': '#6c7086',
-        'editorLineNumber.activeForeground': '#cdd6f4',
-        'editorWidget.background': '#181825',
-        'editorWidget.border': '#313244',
-        'editorSuggestWidget.background': '#181825',
-        'editorSuggestWidget.selectedBackground': '#313244',
-        'scrollbarSlider.background': '#45475a80',
-        'scrollbarSlider.hoverBackground': '#585b70aa',
+        'editor.background': '#0b1120',
+        'editorGutter.background': '#0b1120',
+        'editor.lineHighlightBackground': '#1e293b40',
+        'editor.foreground': '#e2e8f0',
+        'editor.selectionBackground': '#33415580',
+        'editorCursor.foreground': '#38bdf8',
+        'editorLineNumber.foreground': '#475569',
+        'editorLineNumber.activeForeground': '#cbd5e1',
+        'editorWidget.background': '#0f172a',
+        'editorWidget.border': '#1e293b',
+        'editorSuggestWidget.background': '#0f172a',
+        'editorSuggestWidget.selectedBackground': '#1e293b',
+        'scrollbarSlider.background': '#33415540',
+        'scrollbarSlider.hoverBackground': '#47556960',
+        'scrollbarSlider.activeBackground': '#64748b80',
       }
     });
 
     this.editor = monaco.editor.create(this.editorContainer().nativeElement, {
-      value: this.convertJsonToString(this.value()) ?? '{}',
-      language: 'json',
-      theme: 'dark',
+      value: this.convertJsonToString(this.value()) ?? '',
+      language: this.language() || 'json',
+      theme: 'yaata-dark',
       automaticLayout: true,
       minimap: {enabled: false},
       readOnly: this.readOnly(),
       formatOnPaste: true,
       tabSize: 2,
-      scrollBeyondLastLine: false
+      scrollBeyondLastLine: false,
+      fontSize: 13,
+      fontFamily: "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace",
+      lineNumbersMinChars: 3,
+      padding: { top: 8, bottom: 8 },
+      roundedSelection: true,
+      renderLineHighlight: 'all',
+      overviewRulerLanes: 0,
+      hideCursorInOverviewRuler: true,
+      overviewRulerBorder: false,
+      scrollbar: {
+        vertical: 'auto',
+        horizontal: 'auto',
+        verticalScrollbarSize: 8,
+        horizontalScrollbarSize: 8,
+        useShadows: false,
+        alwaysConsumeMouseWheel: true
+      },
+      fixedOverflowWidgets: true
     });
 
     this.editorReady = true;
     this.applySchema();
+
+    this.editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter, () => {
+      this.submitShortcut.emit();
+    });
 
     const changeSub = this.editor.onDidChangeModelContent(() => {
       const val: string = this.editor.getValue();

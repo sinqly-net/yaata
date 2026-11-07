@@ -1,10 +1,134 @@
-<div class="bg-slate-700 p-4 rounded flex">
-  <div class="min-w-[10%] max-w-[12%]">
-    @for (folder of globalSelectionStore.selectedCollection?.()?.folders; track folder) {
-      <app-folder-tree [folder]="folder" [margin_index]="0"></app-folder-tree>
-    }
-  </div>
-  <div class="w-full">
-    <app-request></app-request>
-  </div>
+<!-- Top Collection Selection Bar -->
+<div class="mb-3 shrink-0">
+  <app-collection-selection (share)="openShareModal()"></app-collection-selection>
 </div>
+
+<!-- Main Workspace Body: Sidebar + Request Panels -->
+<div class="flex gap-3.5 flex-1 min-h-0 overflow-hidden">
+  <!-- Sidebar File Tree (Collapsible) -->
+  @if (isSidebarOpen()) {
+    <aside class="w-64 lg:w-72 shrink-0 bg-slate-800/80 border border-slate-700/80 rounded-xl p-2.5 flex flex-col h-full min-h-0 overflow-hidden shadow-sm backdrop-blur-sm transition-all duration-200">
+      <!-- Clean Folder Tree Header with Action Buttons & Collapse -->
+      <div class="flex items-center justify-between pb-2 mb-2 border-b border-slate-700/80 px-1 text-slate-400 shrink-0">
+        <div class="flex items-center gap-1.5 truncate">
+          <svg class="w-4 h-4 text-sky-400 shrink-0" fill="currentColor" viewBox="0 0 20 20">
+            <path d="M2 6a2 2 0 012-2h5l2 2h5a2 2 0 012 2v6a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" />
+          </svg>
+          <span class="text-xs font-semibold uppercase tracking-wider text-slate-300 truncate">Ordner & Anfragen</span>
+        </div>
+
+        <div class="flex items-center gap-1 shrink-0">
+          <!-- Create Request Button -->
+          <button
+            type="button"
+            (click)="openNewRequestModal()"
+            class="p-1 text-slate-400 hover:text-emerald-400 hover:bg-slate-700/70 rounded transition-colors cursor-pointer"
+            title="Neue Anfrage anlegen"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+            </svg>
+          </button>
+
+          <!-- Create Folder Button -->
+          <button
+            type="button"
+            (click)="openNewFolderModal()"
+            class="p-1 text-slate-400 hover:text-amber-400 hover:bg-slate-700/70 rounded transition-colors cursor-pointer"
+            title="Neuen Ordner anlegen"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 13h6m-3-3v6m-9 1V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
+            </svg>
+          </button>
+
+          <!-- Collapse Sidebar Button -->
+          <button
+            type="button"
+            (click)="toggleSidebar()"
+            class="p-1 text-slate-400 hover:text-white hover:bg-slate-700/70 rounded transition-colors cursor-pointer"
+            title="Seitenleiste einklappen"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Scrollable Tree Nodes -->
+      <div class="flex-1 overflow-y-auto overflow-x-hidden pr-0.5 space-y-0.5 custom-tree-scroll min-h-0">
+        @for (folder of globalSelectionStore.selectedCollection?.()?.folders; track folder.id) {
+          <app-folder-tree [folder]="folder" [margin_index]="0"></app-folder-tree>
+        }
+        @if (!globalSelectionStore.selectedCollection?.()?.folders?.length) {
+          <div class="flex flex-col items-center justify-center py-8 px-3 text-center">
+            <svg class="w-8 h-8 text-slate-600 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
+            </svg>
+            <span class="text-xs text-slate-400 mb-3">Keine Ordner vorhanden</span>
+            <button
+              type="button"
+              (click)="openNewFolderModal()"
+              class="px-3 py-1.5 text-xs font-medium text-sky-400 hover:text-sky-300 bg-slate-700/60 hover:bg-slate-700 rounded-lg transition-colors cursor-pointer flex items-center gap-1.5"
+            >
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+              </svg>
+              <span>Ordner erstellen</span>
+            </button>
+          </div>
+        }
+      </div>
+    </aside>
+  } @else {
+    <!-- Collapsed Sidebar Strip -->
+    <aside class="w-10 shrink-0 bg-slate-800/80 border border-slate-700/80 rounded-xl p-1.5 flex flex-col items-center h-full min-h-0 overflow-hidden shadow-sm backdrop-blur-sm transition-all duration-200">
+      <button
+        type="button"
+        (click)="toggleSidebar()"
+        class="p-1.5 text-slate-400 hover:text-sky-400 hover:bg-slate-700/80 rounded transition-colors cursor-pointer w-full flex flex-col items-center gap-2"
+        title="Ordner & Anfragen ausklappen">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7" />
+        </svg>
+        <svg class="w-4 h-4 text-sky-400 shrink-0" fill="currentColor" viewBox="0 0 20 20">
+          <path d="M2 6a2 2 0 012-2h5l2 2h5a2 2 0 012 2v6a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" />
+        </svg>
+      </button>
+      <div
+        (click)="toggleSidebar()"
+        class="mt-4 flex-1 flex items-center justify-center cursor-pointer select-none"
+        title="Ordner & Anfragen ausklappen">
+        <span class="text-[11px] font-medium text-slate-400 hover:text-slate-200 tracking-wider uppercase [writing-mode:vertical-lr] rotate-180">
+          Ordner & Anfragen
+        </span>
+      </div>
+    </aside>
+  }
+
+  <!-- Request Details & Result -->
+  <main class="flex-1 min-w-0 h-full min-h-0 overflow-hidden">
+    <app-request class="h-full block min-h-0"></app-request>
+  </main>
+</div>
+
+<!-- Context Menu -->
+<app-tree-context-menu
+  (createRequestInFolder)="openNewRequestModal($event)"
+  (createSubfolderInFolder)="openNewFolderModal($event)"
+  (renameFolderAction)="handleRenameFolder($event)"
+  (dissolveFolderAction)="handleDissolveFolder($event)"
+  (deleteFolderAction)="handleDeleteFolder($event)"
+  (renameRequestAction)="handleRenameRequest($event)"
+  (duplicateRequestAction)="handleDuplicateRequest($event)"
+  (deleteRequestAction)="handleDeleteRequest($event)"
+></app-tree-context-menu>
+
+<!-- Modals -->
+<app-request-modal (saved)="onRequestSaved($event)"></app-request-modal>
+<app-folder-modal (saved)="onFolderSaved($event)"></app-folder-modal>
+<app-confirm-modal (confirmed)="onActionConfirmed($event)"></app-confirm-modal>
+
+<!-- Share Workspace Modal -->
+<app-workspace-share-modal></app-workspace-share-modal>

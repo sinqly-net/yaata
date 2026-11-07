@@ -15,3 +15,4 @@ class Collection(BaseTableEntity):
     folders: Mapped[List["Folder"]] = relationship(back_populates="collection", lazy="selectin")
     workspace_id: Mapped[UUID] = mapped_column(ForeignKey("workspace.id"))
     workspace: Mapped["Workspace"] = relationship(back_populates="collections", lazy="selectin")
+    accesses: Mapped[List["CollectionAccess"]] = relationship(back_populates="collection", lazy="selectin", cascade="all, delete-orphan")

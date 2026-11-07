@@ -29,7 +29,7 @@ export interface IRequestResult extends IRequestResultBase {
 export interface Request extends Base {
   name: string;
   url: string;
-  body: object;
+  body: any;
   query_params: TKeyValueList;
   headers: TKeyValueList;
   method: RequestMethode;

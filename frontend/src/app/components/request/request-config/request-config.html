@@ -1,15 +1,29 @@
-<app-request-config-url></app-request-config-url>
+<div class="flex flex-col h-full min-h-0 space-y-3 overflow-hidden">
+  <div class="shrink-0">
+    <app-request-config-url></app-request-config-url>
+  </div>
 
-<div class="mt-3">
-  <app-tabs (selectedChange)="setSelectedWorkingTab($event)" [selected]="selectedWorkingTab">
-    <app-tab-item key="body">Body</app-tab-item>
-    <app-tab-item key="query_params">Parameters</app-tab-item>
-    <app-tab-item key="headers">Headers</app-tab-item>
-  </app-tabs>
-</div>
+  <div class="shrink-0 flex items-center justify-between">
+    <app-tabs (selectedChange)="setSelectedWorkingTab($event)" [selected]="selectedWorkingTab">
+      <app-tab-item key="body" [badge]="bodyParamsCount() > 0 ? bodyParamsCount() : null">Body</app-tab-item>
+      <app-tab-item key="query_params" [badge]="activeParamsCount() > 0 ? activeParamsCount() : null">Parameters</app-tab-item>
+      <app-tab-item key="headers" [badge]="activeHeadersCount() > 0 ? activeHeadersCount() : null">Headers</app-tab-item>
+    </app-tabs>
+  </div>
 
-<div class="">
-  @if (currentComponent) {
-    <ng-container *ngComponentOutlet="currentComponent"></ng-container>
-  }
+  <div
+    class="flex-1 min-h-0 rounded-lg flex flex-col"
+    [class.p-0]="selectedWorkingTab === 'body'"
+    [class.overflow-hidden]="selectedWorkingTab === 'body'"
+    [class.p-3]="selectedWorkingTab !== 'body'"
+    [class.overflow-y-auto]="selectedWorkingTab !== 'body'"
+    [class.overflow-x-hidden]="selectedWorkingTab !== 'body'"
+    [class.custom-scroll]="selectedWorkingTab !== 'body'"
+    [class.bg-slate-950/40]="selectedWorkingTab !== 'body'"
+    [class.border]="selectedWorkingTab !== 'body'"
+    [class.border-slate-800/80]="selectedWorkingTab !== 'body'">
+    @if (currentComponent) {
+      <ng-container *ngComponentOutlet="currentComponent"></ng-container>
+    }
+  </div>
 </div>

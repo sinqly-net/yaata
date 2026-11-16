@@ -17,9 +17,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 COPY pyproject.toml uv.lock ./
 RUN uv sync --frozen --no-dev --no-install-project
 
-# Copy application source code and default config
+# Copy application source code
 COPY src/ /app/src/
-COPY config.yaml /app/config.yaml
 
 # Set environment paths
 ENV PATH="/app/.venv/bin:$PATH"

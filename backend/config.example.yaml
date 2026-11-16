@@ -1,0 +1,18 @@
+version: 0.1
+host: http://localhost:5000
+oidc:
+  issuer: https://keycloak.example.com/realms/YourRealm
+  client_id: your-client-id
+  client_secret: your-client-secret
+session:
+  cookie_secure: false
+db:
+  user: postgres
+  password: postgres
+  host: localhost
+  port: 5432
+  database: postgres
+  schema: public
+debug:
+  level: DEBUG
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"

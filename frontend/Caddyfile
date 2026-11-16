@@ -1,0 +1,12 @@
+:80 {
+	root * /srv
+	encode zstd gzip
+
+	@static {
+		path *.ico *.css *.js *.gif *.jpg *.jpeg *.png *.woff *.woff2 *.eot *.ttf *.svg *.json
+	}
+	header @static Cache-Control "public, max-age=15552000"
+
+	try_files {path} /index.html
+	file_server
+}

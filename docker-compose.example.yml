@@ -1,0 +1,57 @@
+# This is just an example. Please don't use in production environment.
+services:
+  gateway:
+    image: caddy:2.11.9
+    networks:
+     - internal
+     - bridge
+    volumes:
+      - type: bind
+        source: ${PWD}/gateway/Caddyfile
+        target: /etc/caddy/Caddyfile
+
+  frontend:
+    image: ghcr.io/sinqly-net/yaata/frontend
+    container_name: yaata_frontend
+    networks:
+     - internal
+    hostname: frontend
+
+  backend:
+    image: ghcr.io/sinqly-net/yaata/backend
+    container_name: yaata_backend
+    networks:
+     - internal
+    hostname: backend
+    volumes:
+      - type: bind
+        source: ${PWD}/backend/config.example.yaml
+        target: /app/config.yaml
+
+  db:
+    image: postgres:19.0
+    container_name: yaata_db
+    ports:
+      - "127.0.0.1:5432:5432"
+    networks:
+     - internal
+    hostname: db
+    environment:
+      POSTGRES_DB: yaata
+      POSTGRES_USER: yaata
+      POSTGRES_PASSWORD: yaata
+    volumes:
+      - postgres_data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+volumes:
+  postgres_data:
+
+networks:
+  internal:
+    internal: true

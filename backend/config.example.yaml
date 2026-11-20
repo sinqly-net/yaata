@@ -7,11 +7,11 @@ oidc:
 session:
   cookie_secure: false
 db:
-  user: postgres
-  password: postgres
-  host: localhost
+  user: yaata
+  password: yaata
+  host: db
   port: 5432
-  database: postgres
+  database: yaata
   schema: public
 debug:
   level: DEBUG

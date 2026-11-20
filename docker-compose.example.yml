@@ -22,6 +22,8 @@ services:
     container_name: yaata_backend
     networks:
      - internal
+    depends_on:
+      - db
     hostname: backend
     volumes:
       - type: bind
@@ -55,3 +57,5 @@ volumes:
 networks:
   internal:
     internal: true
+  bridge:
+    driver: bridge
